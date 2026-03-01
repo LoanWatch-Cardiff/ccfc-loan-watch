@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jesper Daland · CCFC Loan Watch</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0A1628;--blue:#0057B8;--gold:#F5C842;--white:#fff;--muted:rgba(255,255,255,0.45);--card:#0e1f3d;--div:rgba(255,255,255,0.1)}
+body{background:var(--navy);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,87,184,0.25)}
+.nl{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nm{width:36px;height:36px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:14px}
+.nt{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.08em;text-transform:uppercase}
+.nt span{color:var(--blue)}
+.back{font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px}
+.back:hover{color:var(--white)}
+.back::before{content:"←";font-size:16px}
+.hero{margin-top:64px;background:linear-gradient(135deg,#071220,#0d2248 60%,#0a1628);padding:56px 80px 48px;position:relative;overflow:hidden;border-bottom:1px solid rgba(0,87,184,.3)}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,87,184,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,87,184,.04) 1px,transparent 1px);background-size:50px 50px}
+.hero-bg{position:absolute;right:-10px;bottom:-40px;font-family:'Barlow Condensed',sans-serif;font-size:180px;font-weight:900;text-transform:uppercase;color:rgba(0,87,184,.05);letter-spacing:-.05em;line-height:1;pointer-events:none;user-select:none;white-space:nowrap}
+.hero-inner{position:relative;z-index:2}
+.eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.eyebrow-text{font-size:11px;font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:var(--blue)}
+.pname{font-family:'Barlow Condensed',sans-serif;font-size:clamp(56px,8vw,96px);font-weight:900;text-transform:uppercase;line-height:.9;letter-spacing:-.03em;margin-bottom:20px}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:5px 12px;border-radius:3px}
+.t-pos{background:var(--blue)}
+.t-nat{background:rgba(255,255,255,.08);color:var(--muted);border:1px solid var(--div)}
+.t-club{background:rgba(245,200,66,.12);color:var(--gold);border:1px solid rgba(245,200,66,.25)}
+.t-lg{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--div)}
+.qstats{background:var(--card);border-bottom:1px solid var(--div);display:grid;grid-template-columns:repeat(6,1fr)}
+.qs{padding:22px 16px;border-right:1px solid var(--div);text-align:center}
+.qs:last-child{border-right:none}
+.ql{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.qv{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;line-height:1}
+.qv.gold{color:var(--gold)}
+.qsub{font-size:10px;color:var(--muted);margin-top:2px}
+.layout{max-width:1200px;margin:0 auto;padding:56px 80px;display:grid;grid-template-columns:1fr 360px;gap:36px;align-items:start}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-label::before{content:'';width:18px;height:2px;background:var(--blue);flex-shrink:0}
+.card{background:var(--card);border-radius:4px;padding:24px;margin-bottom:20px;border:1px solid var(--div)}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:20px;font-weight:300}
+.chart-h{height:200px;position:relative}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.pill{background:rgba(0,87,184,.1);border:1px solid rgba(0,87,184,.2);border-radius:4px;padding:12px 14px}
+.pill-l{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.pill-v{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;line-height:1}
+.pill-v.gold{color:var(--gold)}
+.pill-v small{font-size:13px;color:var(--muted)}
+.ml-row{display:grid;grid-template-columns:70px 1fr 90px 32px 32px 52px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.ml-row:last-child{border-bottom:none}
+.ml-hdr{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.ml-date{color:var(--muted);font-size:11px}
+.ml-opp{font-weight:400}
+.ml-mins{display:flex;align-items:center;gap:5px;font-size:12px}
+.mbar{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;min-width:30px}
+.mfill{height:100%;background:var(--blue);border-radius:2px}
+.mfull{background:var(--gold)}
+.badge{font-size:9px;font-weight:700;padding:2px 5px;border-radius:2px;letter-spacing:.05em}
+.bw{background:rgba(34,197,94,.15);color:#4ade80}
+.bd{background:rgba(255,255,255,.08);color:var(--muted)}
+.bl{background:rgba(239,68,68,.12);color:#f87171}
+.ml-g{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-align:center;color:var(--muted)}
+.ml-g.scored{color:var(--gold)}
+.ml-rat{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-align:right}
+.sb-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.sb-row:last-child{border-bottom:none}
+.sb-l{font-size:12px;color:var(--muted);font-weight:300}
+.sb-v{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700}
+.sb-v.gold{color:var(--gold)}
+.src-box{background:rgba(0,87,184,.08);border:1px solid rgba(0,87,184,.2);border-radius:4px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start}
+.src-box p{font-size:11px;color:var(--muted);line-height:1.6;font-weight:300}
+footer{background:#060e1a;padding:28px 80px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--div);margin-top:48px}
+.fl{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.fl span{color:var(--blue)}
+.fn{font-size:11px;color:var(--muted)}
+.fade{animation:fi .5s ease both}
+@keyframes fi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nl"><div class="nm">CC</div><div class="nt">Loan <span>Watch</span></div></a>
+  <a href="index.html" class="back">All players</a>
+</nav>
+
+<div class="hero fade">
+  <div class="hero-inner">
+    <div class="eyebrow"><div class="dot"></div><span class="eyebrow-text">Cardiff City · On Loan · 2025/26</span></div>
+    <div class="pname">Jesper<br>Daland</div>
+    <div class="tags">
+      <span class="tag t-pos">CB</span>
+      <span class="tag t-nat">🇳🇴 Norway</span>
+      <span class="tag t-club">Fortuna Düsseldorf</span>
+      <span class="tag t-lg">2. Bundesliga</span>
+    </div>
+  </div>
+  <div class="hero-bg">DALAND</div>
+</div>
+
+<div class="qstats fade">
+  <div class="qs"><div class="ql">Appearances</div><div class="qv">16</div><div class="qsub">14 starts · 2 sub</div></div>
+  <div class="qs"><div class="ql">Minutes</div><div class="qv">1,297</div><div class="qsub">avg 81′ / game</div></div>
+  <div class="qs"><div class="ql">Goals</div><div class="qv">0</div><div class="qsub">0 assists</div></div>
+  <div class="qs"><div class="ql">FotMob Rating</div><div class="qv gold">6.68</div><div class="qsub">avg across starts</div></div>
+  <div class="qs"><div class="ql">Yellow Cards</div><div class="qv">5</div><div class="qsub">+ 1 red card</div></div>
+  <div class="qs"><div class="ql">Aerial Duels</div><div class="qv">51<span style="font-size:16px;color:var(--muted)">%ile</span></div><div class="qsub">vs other CBs</div></div>
+</div>
+
+<div class="layout">
+  <div>
+    <div class="card fade">
+      <div class="sec-label">Involvement</div>
+      <div class="card-title">Starts vs Substitute Appearances</div>
+      <div class="card-sub">16 appearances — a regular in the Düsseldorf starting XI</div>
+      <div class="chart-h"><canvas id="appsChart"></canvas></div>
+    </div>
+
+    <div class="card fade">
+      <div class="sec-label">Performance Data · Source: FotMob</div>
+      <div class="card-title">Season Stats — Defensive Profile</div>
+      <div class="card-sub">2. Bundesliga 2025/26 · 1,297 minutes played</div>
+      <div class="stat-grid">
+        <div class="pill"><div class="pill-l">FotMob Rating</div><div class="pill-v gold">6.68</div></div>
+        <div class="pill"><div class="pill-l">Minutes Played</div><div class="pill-v">1,297′</div></div>
+        <div class="pill"><div class="pill-l">Goals / Assists</div><div class="pill-v">0 / 0</div></div>
+        <div class="pill"><div class="pill-l">xG</div><div class="pill-v">0.05</div></div>
+        <div class="pill"><div class="pill-l">Aerial Duels (percentile)</div><div class="pill-v gold">51%</div></div>
+        <div class="pill"><div class="pill-l">Defensive Contributions</div><div class="pill-v">24%ile</div></div>
+        <div class="pill"><div class="pill-l">Yellow Cards</div><div class="pill-v">5</div></div>
+        <div class="pill"><div class="pill-l">Red Cards</div><div class="pill-v">1</div></div>
+        <div class="pill"><div class="pill-l">Chances Created (percentile)</div><div class="pill-v">22%ile</div></div>
+        <div class="pill"><div class="pill-l">Touches (percentile)</div><div class="pill-v">31%ile</div></div>
+      </div>
+      <div class="src-box" style="margin-top:14px">
+        <span style="font-size:16px">ℹ️</span>
+        <p>Percentile stats compare Daland to all other centre-backs in the 2. Bundesliga this season. Detailed per-game defensive stats (tackles, clearances) not available via FotMob web — check FBref or Sofascore for more granular defensive figures.</p>
+      </div>
+    </div>
+
+    <div class="card fade">
+      <div class="sec-label">Match Log · Source: FotMob</div>
+      <div class="card-title">Recent Appearances</div>
+      <div class="card-sub">Last 8 games — minutes played and FotMob match rating</div>
+      <div class="ml-row ml-hdr"><div>Date</div><div>Opponent</div><div>Mins</div><div>G</div><div>A</div><div style="text-align:right">Rating</div></div><div class="ml-row">
+          <div class="ml-date">21 Feb</div>
+          <div class="ml-opp">Darmstadt <span class="badge bl">L</span> <span style="font-size:11px;color:var(--muted)">1-2</span></div>
+          <div class="ml-mins"><div class="mbar"><div class="mfill " style="width:82%"></div></div>74′</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-rat"><span style="color:var(--white)">5.3</span></div>
+        </div><div class="ml-row">
+          <div class="ml-date">13 Feb</div>
+          <div class="ml-opp">Preussen Münster <span class="badge bd">D</span> <span style="font-size:11px;color:var(--muted)">0-0</span></div>
+          <div class="ml-mins"><div class="mbar"><div class="mfill " style="width:0%"></div></div>—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-rat"><span style="color:var(--muted)">—</span></div>
+        </div><div class="ml-row">
+          <div class="ml-date">8 Feb</div>
+          <div class="ml-opp">Karlsruher SC <span class="badge bd">D</span> <span style="font-size:11px;color:var(--muted)">1-1</span></div>
+          <div class="ml-mins"><div class="mbar"><div class="mfill " style="width:0%"></div></div>—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-rat"><span style="color:var(--muted)">—</span></div>
+        </div><div class="ml-row">
+          <div class="ml-date">1 Feb</div>
+          <div class="ml-opp">Paderborn <span class="badge bw">W</span> <span style="font-size:11px;color:var(--muted)">2-1</span></div>
+          <div class="ml-mins"><div class="mbar"><div class="mfill mfull" style="width:100%"></div></div>90′</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-rat"><span style="color:#4ade80">7.4</span></div>
+        </div><div class="ml-row">
+          <div class="ml-date">24 Jan</div>
+          <div class="ml-opp">Hannover 96 <span class="badge bl">L</span> <span style="font-size:11px;color:var(--muted)">1-2</span></div>
+          <div class="ml-mins"><div class="mbar"><div class="mfill " style="width:14%"></div></div>13′</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-rat"><span style="color:var(--white)">6.2</span></div>
+        </div><div class="ml-row">
+          <div class="ml-date">20 Dec</div>
+          <div class="ml-opp">Greuther Fürth <span class="badge bw">W</span> <span style="font-size:11px;color:var(--muted)">2-1</span></div>
+          <div class="ml-mins"><div class="mbar"><div class="mfill " style="width:96%"></div></div>87′</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-rat"><span style="color:#F5C842">6.7</span></div>
+        </div><div class="ml-row">
+          <div class="ml-date">14 Dec</div>
+          <div class="ml-opp">Elversberg <span class="badge bl">L</span> <span style="font-size:11px;color:var(--muted)">0-1</span></div>
+          <div class="ml-mins"><div class="mbar"><div class="mfill " style="width:57%"></div></div>52′</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-rat"><span style="color:#4ade80">7.1</span></div>
+        </div><div class="ml-row">
+          <div class="ml-date">5 Dec</div>
+          <div class="ml-opp">Schalke 04 <span class="badge bl">L</span> <span style="font-size:11px;color:var(--muted)">0-2</span></div>
+          <div class="ml-mins"><div class="mbar"><div class="mfill mfull" style="width:100%"></div></div>90′</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-g ">—</div>
+          <div class="ml-rat"><span style="color:var(--white)">6.3</span></div>
+        </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card fade">
+      <div class="card-title" style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--div)">Season Summary</div>
+      <div class="sb-row"><span class="sb-l">Appearances</span><span class="sb-v">16</span></div>
+      <div class="sb-row"><span class="sb-l">Starts</span><span class="sb-v">14</span></div>
+      <div class="sb-row"><span class="sb-l">Sub apps</span><span class="sb-v">2</span></div>
+      <div class="sb-row"><span class="sb-l">Minutes played</span><span class="sb-v">1,297′</span></div>
+      <div class="sb-row"><span class="sb-l">Goals</span><span class="sb-v">0</span></div>
+      <div class="sb-row"><span class="sb-l">Assists</span><span class="sb-v">0</span></div>
+      <div class="sb-row"><span class="sb-l">FotMob rating</span><span class="sb-v gold">6.68</span></div>
+      <div class="sb-row"><span class="sb-l">Yellow cards</span><span class="sb-v">5</span></div>
+      <div class="sb-row"><span class="sb-l">Red cards</span><span class="sb-v">1</span></div>
+    </div>
+
+    <div class="card fade">
+      <div class="card-title" style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--div)">Player Profile</div>
+      <div class="sb-row"><span class="sb-l">Age</span><span class="sb-v">26</span></div>
+      <div class="sb-row"><span class="sb-l">Height</span><span class="sb-v">191 cm</span></div>
+      <div class="sb-row"><span class="sb-l">Nationality</span><span class="sb-v">🇳🇴 Norway</span></div>
+      <div class="sb-row"><span class="sb-l">Loan club</span><span class="sb-v">Fortuna Düsseldorf</span></div>
+      <div class="sb-row"><span class="sb-l">Loan expires</span><span class="sb-v">Jun 2026</span></div>
+      <div class="sb-row"><span class="sb-l">Cardiff contract</span><span class="sb-v">Jun 2028</span></div>
+      <div class="sb-row"><span class="sb-l">Market value</span><span class="sb-v">€2.4M</span></div>
+      <div class="sb-row"><span class="sb-l">Buy option</span><span class="sb-v" style="color:var(--gold)">Yes</span></div>
+    </div>
+
+    <div class="card fade">
+      <div style="height:220px;position:relative"><canvas id="radarChart"></canvas></div>
+      <p style="font-size:10px;color:var(--muted);margin-top:10px;text-align:center;font-style:italic">Trait percentiles vs. 2. Bundesliga centre-backs · FotMob</p>
+    </div>
+
+    <div class="src-box fade">
+      <span style="font-size:16px">📡</span>
+      <p>Stats sourced from <strong style="color:var(--white)">FotMob</strong>. All figures reflect the 2025/26 2. Bundesliga season. Last updated 1 March 2026.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+Chart.defaults.color='rgba(255,255,255,.5)';
+Chart.defaults.borderColor='rgba(255,255,255,.06)';
+new Chart(document.getElementById('appsChart'),{
+  type:'doughnut',
+  data:{labels:['Started (14)','Sub (2)'],datasets:[{data:[14,2],backgroundColor:['#0057B8','rgba(0,87,184,.2)'],borderColor:['#0057B8','rgba(0,87,184,.35)'],borderWidth:2,hoverOffset:6}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{position:'right',labels:{padding:16,font:{family:'DM Sans',size:12},color:'rgba(255,255,255,.6)'}}}}
+});
+new Chart(document.getElementById('radarChart'),{
+  type:'radar',
+  data:{labels:['Aerial Duels (51%)','Touches (31%)','Shot Attempts (22%)','Chances Created (22%)','Def. Contributions (24%)','Goals (0%)'],
+    datasets:[{label:'Daland',data:[51,31,22,22,24,0],backgroundColor:'rgba(0,87,184,.18)',borderColor:'#0057B8',borderWidth:2,pointBackgroundColor:'#0057B8',pointRadius:3}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{r:{min:0,max:100,grid:{color:'rgba(255,255,255,.07)'},angleLines:{color:'rgba(255,255,255,.07)'},ticks:{display:false},
+      pointLabels:{font:{size:9.5,family:'DM Sans'},color:'rgba(255,255,255,.5)'}}}}
+});
+</script>
+<footer>
+  <div class="fl">CCFC <span>Loan Watch</span></div>
+  <p class="fn">Stats: FotMob · Updated 1 Mar 2026 · Independent fan site</p>
+  <a href="index.html" style="font-size:11px;color:var(--muted);text-decoration:none">← Back</a>
+</footer>
+</body>
+</html>
