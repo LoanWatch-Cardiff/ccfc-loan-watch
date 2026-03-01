@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Michael Reindorf · CCFC Loan Watch</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0A1628;--blue:#0057B8;--gold:#F5C842;--white:#fff;--muted:rgba(255,255,255,0.45);--card:#0e1f3d;--div:rgba(255,255,255,0.1)}
+body{background:var(--navy);font-family:'DM Sans',sans-serif;color:var(--white);overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,87,184,0.25)}
+.nl{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nm{width:36px;height:36px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:14px}
+.nt{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.08em;text-transform:uppercase}
+.nt span{color:var(--blue)}
+.back{font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px}
+.back:hover{color:var(--white)}
+.back::before{content:"←";font-size:16px}
+.hero{margin-top:64px;background:linear-gradient(135deg,#071220,#0d2248 60%,#0a1628);padding:56px 80px 48px;position:relative;overflow:hidden;border-bottom:1px solid rgba(0,87,184,.3)}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,87,184,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,87,184,.04) 1px,transparent 1px);background-size:50px 50px}
+.hero-bg{position:absolute;right:-10px;bottom:-40px;font-family:'Barlow Condensed',sans-serif;font-size:180px;font-weight:900;text-transform:uppercase;color:rgba(0,87,184,.05);letter-spacing:-.05em;line-height:1;pointer-events:none;user-select:none;white-space:nowrap}
+.hero-inner{position:relative;z-index:2}
+.eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.eyebrow-text{font-size:11px;font-weight:500;letter-spacing:.25em;text-transform:uppercase;color:var(--blue)}
+.pname{font-family:'Barlow Condensed',sans-serif;font-size:clamp(56px,8vw,96px);font-weight:900;text-transform:uppercase;line-height:.9;letter-spacing:-.03em;margin-bottom:20px}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:5px 12px;border-radius:3px}
+.t-pos{background:var(--blue)}
+.t-nat{background:rgba(255,255,255,.08);color:var(--muted);border:1px solid var(--div)}
+.t-club{background:rgba(245,200,66,.12);color:var(--gold);border:1px solid rgba(245,200,66,.25)}
+.t-lg{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--div)}
+.qstats{background:var(--card);border-bottom:1px solid var(--div);display:grid}
+.qs{padding:22px 16px;border-right:1px solid var(--div);text-align:center}
+.qs:last-child{border-right:none}
+.ql{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.qv{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:900;line-height:1}
+.qv.gold{color:var(--gold)}
+.qsub{font-size:10px;color:var(--muted);margin-top:2px}
+.layout{max-width:1200px;margin:0 auto;padding:56px 80px;display:grid;grid-template-columns:1fr 360px;gap:36px;align-items:start}
+.sec-label{font-size:9px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-label::before{content:'';width:18px;height:2px;background:var(--blue);flex-shrink:0}
+.card{background:var(--card);border-radius:4px;padding:24px;margin-bottom:20px;border:1px solid var(--div)}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:20px;font-weight:300}
+.chart-h{height:200px;position:relative}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.pill{background:rgba(0,87,184,.1);border:1px solid rgba(0,87,184,.2);border-radius:4px;padding:12px 14px}
+.pill-l{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.pill-v{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;line-height:1}
+.pill-v.gold{color:var(--gold)}
+.pill-v small{font-size:13px;color:var(--muted)}
+.ml-row{display:grid;grid-template-columns:70px 1fr 90px 32px 32px 52px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.ml-row:last-child{border-bottom:none}
+.ml-hdr{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.ml-date{color:var(--muted);font-size:11px}
+.ml-opp{font-weight:400}
+.ml-mins{display:flex;align-items:center;gap:5px;font-size:12px}
+.mbar{flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;min-width:30px}
+.mfill{height:100%;background:var(--blue);border-radius:2px}
+.mfull{background:var(--gold)}
+.badge{font-size:9px;font-weight:700;padding:2px 5px;border-radius:2px;letter-spacing:.05em}
+.bw{background:rgba(34,197,94,.15);color:#4ade80}
+.bd{background:rgba(255,255,255,.08);color:var(--muted)}
+.bl{background:rgba(239,68,68,.12);color:#f87171}
+.ml-g{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-align:center;color:var(--muted)}
+.ml-g.scored{color:var(--gold)}
+.ml-rat{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-align:right}
+.sb-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.sb-row:last-child{border-bottom:none}
+.sb-l{font-size:12px;color:var(--muted);font-weight:300}
+.sb-v{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700}
+.sb-v.gold{color:var(--gold)}
+.src-box{background:rgba(0,87,184,.08);border:1px solid rgba(0,87,184,.2);border-radius:4px;padding:12px 14px;display:flex;gap:8px;align-items:flex-start}
+.src-box p{font-size:11px;color:var(--muted);line-height:1.6;font-weight:300}
+.notice-box{background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-radius:4px;padding:16px 18px;margin-bottom:20px}
+.notice-box p{font-size:12px;color:rgba(245,200,66,.8);line-height:1.7;font-weight:300}
+.lp-row{display:flex;align-items:center;gap:12px;padding:8px 0;font-size:12px}
+.lp-dot{width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0}
+.lp-dot.active{background:var(--gold)}
+.lp-club{font-weight:500}
+.lp-period{font-size:11px;color:var(--muted);margin-left:auto}
+footer{background:#060e1a;padding:28px 80px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--div);margin-top:48px}
+.fl{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.fl span{color:var(--blue)}
+.fn{font-size:11px;color:var(--muted)}
+.fade{animation:fi .5s ease both}
+@keyframes fi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.layout{grid-template-columns:1fr;padding:32px 24px}.hero{padding:40px 24px 36px}.qstats{grid-template-columns:repeat(3,1fr)}nav{padding:0 24px}}</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nl"><div class="nm">CC</div><div class="nt">Loan <span>Watch</span></div></a>
+  <a href="index.html" class="back">All players</a>
+</nav>
+<div class="hero fade">
+  <div class="hero-inner">
+    <div class="eyebrow"><div class="dot"></div><span class="eyebrow-text">Cardiff City · 2025/26</span></div>
+    <div class="pname">Michael<br>Reindorf</div>
+    <div class="tags">
+      <span class="tag t-pos">ST</span>
+      <span class="tag t-nat">England</span>
+      <span class="tag t-club">Tamworth</span>
+      <span class="tag t-lg">National League</span>
+    </div>
+  </div>
+  <div class="hero-bg">REINDORF</div>
+</div>
+<div class="qstats fade" style="grid-template-columns:repeat(6,1fr)">
+<div class="qs"><div class="ql">Newport County</div><div class="qv">22 apps</div><div class="qsub">League Two H1</div></div>
+<div class="qs"><div class="ql">Newport Goals</div><div class="qv gold">1</div><div class="qsub">confirmed</div></div>
+<div class="qs"><div class="ql">Tamworth</div><div class="qv">4 apps</div><div class="qsub">NL H2 · FotMob</div></div>
+<div class="qs"><div class="ql">All-comps xG</div><div class="qv">1.60</div><div class="qsub">FotMob</div></div>
+<div class="qs"><div class="ql">All-comps Mins</div><div class="qv">914</div><div class="qsub">FotMob</div></div>
+<div class="qs"><div class="ql">All-comps Assists</div><div class="qv">1</div><div class="qsub">FotMob</div></div>
+</div>
+<div class="layout">
+  <div>
+    <div class="notice-box fade"><p>&#9888; Newport County apps (22) confirmed via Tamworth and Cardiff City official announcements. Tamworth NL apps from FotMob. FotMob goal tally shows 0 as the Newport goal was an FA Cup goal — confirmed by multiple reports as 1 goal in 22 appearances.</p></div>
+    <div class="card fade">
+  <div class="sec-label">Loan Path 2025/26</div>
+  <div class="card-title">Two Loan Clubs This Season</div>
+  <div class="card-sub">Newport County (H1) → Tamworth (H2)</div>
+  <div class="lp-row" style="border-bottom:1px solid rgba(255,255,255,.04);padding:10px 0"><div class="lp-dot"></div><div class="lp-club">Newport County (League Two)</div><div class="lp-period">Aug 2025 – Jan 2026 · 22 apps · 1G</div></div>
+  <div class="lp-row" style="padding:10px 0"><div class="lp-dot active"></div><div class="lp-club">Tamworth (National League)</div><div class="lp-period">Feb 3, 2026 – present · 4 FotMob apps</div></div>
+</div>
+<div class="card fade">
+  <div class="sec-label">Advanced Stats · FotMob (All Competitions 2025/26)</div>
+  <div class="card-title">Season Totals — Newport County + Tamworth</div>
+  <div class="card-sub">FotMob tracks across all comps · 914 minutes total</div>
+  <div class="stat-grid"><div class="pill"><div class="pill-l">Goals (all comps)</div><div class="pill-v">0</div></div><div class="pill"><div class="pill-l">xG</div><div class="pill-v">1.60</div></div><div class="pill"><div class="pill-l">xGOT</div><div class="pill-v">1.73</div></div><div class="pill"><div class="pill-l">Shots / On Target</div><div class="pill-v">17 / 7</div></div><div class="pill"><div class="pill-l">Assists (all comps)</div><div class="pill-v">1</div></div><div class="pill"><div class="pill-l">xA</div><div class="pill-v">0.64</div></div><div class="pill"><div class="pill-l">Chances Created</div><div class="pill-v">5</div></div><div class="pill"><div class="pill-l">Successful Dribbles</div><div class="pill-v">18 (50%)</div></div><div class="pill"><div class="pill-l">Touches</div><div class="pill-v">366</div></div><div class="pill"><div class="pill-l">Box Touches</div><div class="pill-v">23</div></div><div class="pill"><div class="pill-l">Aerial Duels Won</div><div class="pill-v">15 (26.3%)</div></div><div class="pill"><div class="pill-l">Yellow Cards</div><div class="pill-v">2</div></div></div>
+  <p style="font-size:11px;color:var(--muted);margin-top:12px;font-weight:300">Note: FotMob goal tally shows 0 — the 1 goal at Newport was in the FA Cup (per confirmed reports). 1 assist was in the FA Cup vs Gillingham.</p>
+</div>
+<div class="card fade">
+  <div class="sec-label">Match Log · FotMob</div>
+  <div class="card-title">Recent Appearances (all competitions)</div>
+  <div class="card-sub">National League ratings not shown · Newport L2 ratings shown</div>
+  <div class="ml-row ml-hdr"><div>Date</div><div>Opponent</div><div>Mins</div><div>G</div><div>A</div><div style="text-align:right">Rtg</div></div>
+  <div class="ml-row"><div class="ml-date">28 Feb</div><div class="ml-opp">Boreham Wood <span class="badge bw">W</span></div><div class="ml-mins" style="color:var(--muted);font-size:11px">Bench</div><div class="ml-g">—</div><div class="ml-g">—</div><div class="ml-rat"><span style="color:var(--muted)">—</span></div></div><div class="ml-row"><div class="ml-date">17 Feb</div><div class="ml-opp">West Ham U21 (NL Cup) <span class="badge bl">L</span></div><div class="ml-mins"><div class="mbar"><div class="mfill mfull" style="width:100%"></div></div>90&#8242;</div><div class="ml-g">—</div><div class="ml-g">—</div><div class="ml-rat"><span style="color:var(--muted)">—</span></div></div><div class="ml-row"><div class="ml-date">10 Feb</div><div class="ml-opp">Morecambe <span class="badge bd">D</span></div><div class="ml-mins" style="color:var(--muted);font-size:11px">Bench</div><div class="ml-g">—</div><div class="ml-g">—</div><div class="ml-rat"><span style="color:var(--muted)">—</span></div></div><div class="ml-row"><div class="ml-date">7 Feb</div><div class="ml-opp">Hartlepool United <span class="badge bd">D</span></div><div class="ml-mins"><div class="mbar"><div class="mfill" style="width:97%"></div></div>88&#8242;</div><div class="ml-g">—</div><div class="ml-g">—</div><div class="ml-rat"><span style="color:var(--muted)">—</span></div></div><div class="ml-row"><div class="ml-date">7 Dec</div><div class="ml-opp">Boreham Wood (FA Cup) <span class="badge bl">L</span></div><div class="ml-mins"><div class="mbar"><div class="mfill" style="width:21%"></div></div>19&#8242;</div><div class="ml-g">—</div><div class="ml-g">—</div><div class="ml-rat"><span style="color:#f87171">5.9</span></div></div><div class="ml-row"><div class="ml-date">22 Nov</div><div class="ml-opp">Oldham Athletic <span class="badge bl">L</span></div><div class="ml-mins"><div class="mbar"><div class="mfill" style="width:11%"></div></div>10&#8242;</div><div class="ml-g">—</div><div class="ml-g">—</div><div class="ml-rat"><span style="color:var(--white)">6.1</span></div></div><div class="ml-row"><div class="ml-date">11 Nov</div><div class="ml-opp">Exeter City (EFL Tphy) <span class="badge bl">L</span></div><div class="ml-mins"><div class="mbar"><div class="mfill" style="width:35%"></div></div>32&#8242;</div><div class="ml-g">—</div><div class="ml-g">—</div><div class="ml-rat"><span style="color:#f87171">5.8</span></div></div><div class="ml-row"><div class="ml-date">8 Nov</div><div class="ml-opp">Walsall <span class="badge bl">L</span></div><div class="ml-mins"><div class="mbar"><div class="mfill" style="width:23%"></div></div>21&#8242;</div><div class="ml-g">—</div><div class="ml-g">—</div><div class="ml-rat"><span style="color:#f87171">5.8</span></div></div><div class="ml-row"><div class="ml-date">1 Nov</div><div class="ml-opp">Gillingham (FA Cup) <span class="badge bd">D</span></div><div class="ml-mins"><div class="mbar"><div class="mfill" style="width:28%"></div></div>26&#8242;</div><div class="ml-g">—</div><div class="ml-g scored">1</div><div class="ml-rat"><span style="color:var(--muted)">—</span></div></div>
+</div>
+  </div>
+  <div>
+    <div class="card fade"><div class="card-title" style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--div)">Season Summary</div><div class="sb-row"><span class="sb-l">Newport County apps</span><span class="sb-v">22</span></div><div class="sb-row"><span class="sb-l">Newport goals</span><span class="sb-v gold">1</span></div><div class="sb-row"><span class="sb-l">Tamworth apps (FotMob)</span><span class="sb-v">4</span></div><div class="sb-row"><span class="sb-l">All-comps minutes</span><span class="sb-v">914</span></div><div class="sb-row"><span class="sb-l">All-comps xG</span><span class="sb-v">1.60</span></div><div class="sb-row"><span class="sb-l">All-comps assists</span><span class="sb-v">1</span></div></div><div class="card fade"><div class="card-title" style="margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--div)">Player Profile</div><div class="sb-row"><span class="sb-l">Age</span><span class="sb-v">20</span></div><div class="sb-row"><span class="sb-l">DOB</span><span class="sb-v">10 May 2005</span></div><div class="sb-row"><span class="sb-l">Nat</span><span class="sb-v">England</span></div><div class="sb-row"><span class="sb-l">Position</span><span class="sb-v">ST</span></div><div class="sb-row"><span class="sb-l">Foot</span><span class="sb-v">Right</span></div><div class="sb-row"><span class="sb-l">Market value</span><span class="sb-v">€281K</span></div></div><div class="src-box fade"><span style="font-size:16px">📡</span><p>Apps &amp; Newport goal from <strong style="color:var(--white)">club confirmations + Tamworth announcement</strong>. Advanced stats (xG, shots etc) from <strong style="color:var(--white)">FotMob</strong> all-comps 2025/26.</p></div>
+  </div>
+</div>
+<footer>
+  <div class="fl">CCFC <span>Loan Watch</span></div>
+  <p class="fn">Apps &amp; minutes: Transfermarkt · Advanced stats: FotMob · Updated 1 Mar 2026 · Independent fan site</p>
+  <a href="index.html" style="font-size:11px;color:var(--muted);text-decoration:none">Back to all players</a>
+</footer>
+</body>
+</html>
