@@ -1,0 +1,2824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCFC Loan Watch</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+  if (typeof L === 'undefined') {
+    document.write('<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"><\/script>');
+  }
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0A1628;
+  --blue:    #0057B8;
+  --blue-light: #1a6fd4;
+  --gold:    #F5C842;
+  --white:   #FFFFFF;
+  --off-white: #E8EDF5;
+  --muted:   rgba(255,255,255,0.45);
+  --card-bg: #0e1f3d;
+  --divider: rgba(255,255,255,0.1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--navy);
+  font-family: 'DM Sans', sans-serif;
+  color: var(--white);
+  overflow-x: hidden;
+}
+
+/* ─── NAV ─────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  height: 64px;
+  background: rgba(10,22,40,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0,87,184,0.25);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.nav-logo-mark {
+  width: 36px;
+  height: 36px;
+  background: var(--blue);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+
+.nav-logo-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--white);
+}
+
+.nav-logo-text span { color: var(--blue); }
+
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--white); }
+
+.nav-cta {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  padding: 10px 22px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-decoration: none;
+}
+
+.nav-cta:hover { background: var(--blue-light); }
+
+/* ─── HERO ────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 120px 64px 80px 80px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.hero-eyebrow-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.4; transform:scale(0.7); }
+}
+
+.hero-eyebrow-text {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+.hero h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(64px, 7vw, 96px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+}
+
+.hero h1 .accent { color: var(--blue); }
+
+.hero-sub {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 380px;
+  margin-bottom: 48px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.btn-primary {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--blue);
+  color: var(--white);
+  border: none;
+  padding: 16px 36px;
+  border-radius: 3px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+  display: inline-block;
+}
+
+.btn-primary:hover {
+  background: var(--blue-light);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.btn-ghost:hover { color: var(--white); }
+
+.btn-ghost::after {
+  content: '→';
+  font-size: 16px;
+}
+
+.hero-stats-bar {
+  margin-top: 64px;
+  display: flex;
+  gap: 40px;
+  padding-top: 32px;
+  border-top: 1px solid var(--divider);
+}
+
+.hero-stat-item {}
+.hero-stat-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1;
+}
+.hero-stat-num span { color: var(--blue); }
+.hero-stat-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* hero right — image */
+.hero-right {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+/* gradient overlay fading into navy on left */
+.hero-right::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--navy) 0%, transparent 30%);
+  z-index: 1;
+}
+
+/* diagonal cut bottom */
+.hero-right::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: -2px; right: -2px;
+  height: 120px;
+  background: var(--navy);
+  clip-path: polygon(0 100%, 100% 100%, 100% 0);
+  z-index: 2;
+}
+
+/* hero background grid texture */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,87,184,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,87,184,0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-left { z-index: 3; }
+
+/* ─── SECTION SHARED ──────────────────────── */
+section {
+  padding: 100px 80px;
+  position: relative;
+}
+
+.section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-label::before {
+  content: '';
+  width: 24px;
+  height: 2px;
+  background: var(--blue);
+  display: block;
+}
+
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.section-title .accent { color: var(--blue); }
+
+.section-sub {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 480px;
+}
+
+/* ─── PLAYERS SECTION ─────────────────────── */
+#players {
+  background: var(--navy);
+}
+
+.players-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 56px;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 24px;
+  max-width: 1100px;
+}
+
+/* CARD */
+.player-card {
+  background: var(--card-bg);
+  border-radius: 4px;
+  border-left: 3px solid var(--blue);
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  min-height: 270px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.player-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 32px 70px rgba(0,0,0,0.55);
+}
+
+.card-photo {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.card-photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(160deg, #0e2a5a 0%, #071428 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.card-photo-placeholder svg {
+  width: 130px;
+  height: 190px;
+  opacity: 0.12;
+  margin-bottom: -8px;
+}
+
+.card-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, transparent 55%, var(--card-bg) 100%);
+}
+
+.card-body {
+  padding: 24px 24px 24px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.player-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 34px;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.player-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.position-badge {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: var(--blue);
+  color: var(--white);
+  padding: 3px 8px;
+  border-radius: 2px;
+}
+
+.nationality {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 10px;
+  margin-bottom: 18px;
+}
+
+.stat-label {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 38px;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1;
+}
+
+.stat-value.gold { color: var(--gold); }
+
+.stat-sub {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 1px;
+  font-weight: 300;
+}
+
+.card-divider {
+  height: 1px;
+  background: var(--divider);
+  margin-bottom: 12px;
+}
+
+.loan-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.loan-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: pulse 2s infinite;
+}
+
+.loan-pill-text {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.club-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--white);
+}
+
+.league-name {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+
+/* ─── ABOUT SECTION ───────────────────────── */
+#about {
+  background: var(--navy);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  padding: 100px 80px;
+}
+
+.about-image {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  height: 480px;
+}
+
+.about-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  filter: brightness(0.85);
+}
+
+.about-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--navy) 0%, transparent 50%);
+}
+
+.about-image-badge {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 2;
+  background: var(--blue);
+  padding: 14px 20px;
+  border-radius: 3px;
+}
+
+.about-image-badge-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.about-image-badge-label {
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.about-content { }
+
+.about-points {
+  margin-top: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.about-point {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.about-point-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(0,87,184,0.15);
+  border: 1px solid rgba(0,87,184,0.3);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.about-point-text {}
+.about-point-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.about-point-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ─── FOOTER ──────────────────────────────── */
+footer {
+  background: #060e1a;
+  padding: 48px 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--divider);
+}
+
+.footer-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.footer-logo span { color: var(--blue); }
+
+.footer-note {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+
+.footer-links a {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer-links a:hover { color: var(--white); }
+
+/* ─── SCROLL ANIMATIONS ───────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ─── HERO LOAD ANIMATION ─────────────────── */
+.hero-left > * {
+  animation: heroIn 0.7s ease both;
+}
+
+.hero-left > *:nth-child(1) { animation-delay: 0.1s; }
+.hero-left > *:nth-child(2) { animation-delay: 0.2s; }
+.hero-left > *:nth-child(3) { animation-delay: 0.3s; }
+.hero-left > *:nth-child(4) { animation-delay: 0.4s; }
+.hero-left > *:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-right {
+  animation: heroImgIn 1s ease both;
+  animation-delay: 0.2s;
+}
+
+@keyframes heroImgIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── MONTHLY REVIEWS ─────────────────────── */
+#reviews { background: #080f1e; padding: 100px 80px; }
+.reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 56px; }
+.review-card { background: var(--card-bg); border-radius: 4px; border: 1px solid rgba(255,255,255,0.06); padding: 28px 26px; cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease; position: relative; overflow: hidden; }
+.review-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--blue); }
+.review-card:hover { transform: translateY(-4px); border-color: rgba(0,87,184,0.3); box-shadow: 0 16px 40px rgba(0,0,0,0.4); }
+.review-card-month { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 4px; }
+.review-card-season { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 28px; }
+.review-card-footer { display: flex; align-items: center; justify-content: space-between; }
+.review-open-btn { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--blue); }
+.review-player-count { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.25); }
+/* ─── MODAL ─── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(5,12,25,0.88); backdrop-filter: blur(6px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: #0d1e3a; border: 1px solid rgba(0,87,184,0.25); border-radius: 6px; width: 100%; max-width: 640px; max-height: 82vh; overflow-y: auto; transform: translateY(16px); transition: transform 0.25s ease; }
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header { display: flex; align-items: flex-start; justify-content: space-between; padding: 28px 30px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); position: sticky; top: 0; background: #0d1e3a; z-index: 1; }
+.modal-title { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; }
+.modal-title span { color: var(--blue); }
+.modal-subtitle { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 5px; }
+.modal-close { background: none; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.5); width: 32px; height: 32px; border-radius: 3px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; transition: all 0.15s; }
+.modal-close:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+.modal-body { padding: 0 30px 28px; }
+.modal-section-label { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--blue); font-weight: 700; margin: 24px 0 10px; }
+.modal-player-row { display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 16px; }
+.modal-player-row:last-child { border-bottom: none; }
+.mpr-name { font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 2px; }
+.mpr-club { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.mpr-stats { display: flex; gap: 14px; align-items: center; }
+.mpr-stat { text-align: center; }
+.mpr-stat-val { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 900; line-height: 1; }
+.mpr-stat-val.gold { color: var(--gold); }
+.mpr-stat-lbl { font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 1px; }
+
+/* ══════════════════════════════════════════════
+   MOBILE & RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* NAV */
+  nav { padding: 0 20px; height: 56px; }
+  .nav-links { display: none; }
+  .nav-cta { display: none; }
+
+  /* HERO */
+  .hero { grid-template-columns: 1fr; min-height: auto; padding-bottom: 0; }
+  .hero-left { padding: 100px 24px 48px; }
+  .hero h1 { font-size: 56px; }
+  .hero-sub { font-size: 14px; max-width: 100%; }
+  .hero-actions { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .hero-stats-bar { gap: 24px; flex-wrap: wrap; margin-top: 40px; }
+  .hero-right { display: none; }
+
+  /* SECTION PADDING */
+  #players,
+  #spotlight,
+  #history,
+  #reviews,
+  .about-section { padding: 64px 20px !important; }
+
+  /* SECTION HEADERS */
+  .players-header { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 36px; }
+  .section-sub { max-width: 100%; }
+
+  /* PLAYER CARDS */
+  .players-grid { grid-template-columns: 1fr !important; gap: 14px; }
+  .player-card { grid-template-columns: 120px 1fr; min-height: 200px; }
+  .card-photo-placeholder svg { width: 90px; height: 140px; }
+  .player-name { font-size: 26px; }
+  .stat-value { font-size: 28px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* SPOTLIGHT */
+  .spotlight-grid { grid-template-columns: 1fr 1fr !important; }
+
+  /* REVIEWS */
+  .reviews-grid { grid-template-columns: 1fr; gap: 12px; }
+  .review-card { padding: 22px 20px; }
+
+  /* MODAL */
+  .modal-overlay { padding: 12px; align-items: flex-end; }
+  .modal { max-height: 88vh; border-radius: 6px 6px 0 0; max-width: 100%; }
+  .modal-header { padding: 22px 20px 16px; }
+  .modal-body { padding: 0 20px 24px; }
+  .modal-player-row { grid-template-columns: 1fr; gap: 8px; }
+  .mpr-stats { gap: 16px; }
+  .mpr-stat-val { font-size: 22px; }
+
+  /* HISTORY TABS */
+  .history-tabs { gap: 6px; }
+  .history-tabs button { font-size: 10px; padding: 8px 12px; }
+
+  /* ABOUT */
+  .about-grid { grid-template-columns: 1fr !important; gap: 40px !important; padding: 64px 20px !important; }
+  .about-image { display: none; }
+
+  /* FOOTER */
+  footer { flex-direction: column; gap: 20px; padding: 36px 24px; text-align: center; }
+  .footer-links { justify-content: center; }
+
+  /* MAP SECTION */
+  #map { height: 320px !important; }
+  .map-controls { flex-wrap: wrap; gap: 8px; }
+
+  /* HISTORY TABLE */
+  .history-table-wrap { overflow-x: auto; }
+}
+
+@media (max-width: 480px) {
+  .hero h1 { font-size: 46px; }
+  .player-card { grid-template-columns: 100px 1fr; }
+  .player-name { font-size: 22px; }
+  .stat-value { font-size: 24px; }
+  .card-body { padding: 16px 14px 16px 12px; }
+  nav { padding: 0 16px; }
+  .nav-logo-text { font-size: 15px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">CC</div>
+    <div class="nav-logo-text">Loan <span>Watch</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#players">Players</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#history">History</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <a href="#players" class="nav-cta">View All Loans</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">
+      <div class="hero-eyebrow-dot"></div>
+      <span class="hero-eyebrow-text">Cardiff City FC · 2025/26 Season</span>
+    </div>
+    <h1>Cardiff City<br><span class="accent">Loan</span><br>Watch</h1>
+    <p class="hero-sub">Your home for tracking every Cardiff City player out on loan. Live stats, match updates and performance data — all in one place.</p>
+    <div class="hero-actions">
+      <a href="#players" class="btn-primary">View Players</a>
+      <a href="#reviews" class="btn-ghost">Monthly Reviews</a>
+    </div>
+    <div class="hero-stats-bar">
+      <div class="hero-stat-item">
+        <div class="hero-stat-num"><span>12</span></div>
+        <div class="hero-stat-label">Players on Loan</div>
+      </div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num"><span>6</span></div>
+        <div class="hero-stat-label">Goals This Season</div>
+      </div>
+      <div class="hero-stat-item">
+        <div class="hero-stat-num"><span>108</span></div>
+        <div class="hero-stat-label">Total Appearances</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <img src="hero.jpg" alt="Cardiff City player">
+  </div>
+</section>
+
+<!-- PLAYERS -->
+<section id="players">
+  <div class="players-header">
+    <div>
+      <div class="section-label">Current Loans</div>
+      <h2 class="section-title">Players Out<br><span class="accent">On Loan</span></h2>
+    </div>
+    <p class="section-sub">Explore the profiles of our players currently on loan. Stats update throughout the season.</p>
+  </div>
+
+  <!-- Position group helper -->
+  <style>
+    .position-group { margin-bottom: 48px; }
+    .position-group-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .position-group-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--divider);
+    }
+    .players-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 20px;
+    }
+    /* GK card — slightly different accent */
+    .player-card.gk { border-left-color: #2a7fff; }
+    .player-card.gk .position-badge { background: #1a5fa8; }
+    /* Clickable cards */
+    .player-card { cursor: default; }
+    a .player-card { cursor: pointer; }
+    .player-card:hover .card-arrow { opacity: 1; transform: translateX(0); }
+    .card-arrow {
+      font-size: 14px;
+      color: var(--blue);
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: all 0.2s ease;
+      display: inline-block;
+      margin-top: 4px;
+      letter-spacing: 0.1em;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    /* note asterisk */
+    .card-note {
+      font-size: 10px;
+      color: var(--gold);
+      font-style: italic;
+      margin-top: 4px;
+      font-weight: 300;
+    }
+  </style>
+
+  <!-- ══ ST & AM ══ -->
+  <div class="position-group">
+    <div class="position-group-label">Strikers &amp; Attacking Midfielders</div>
+    <div class="players-grid">
+
+      <!-- Roko Simic -->
+      <a href="player-simic.html" style="text-decoration:none;color:inherit;display:block"><div class="player-card reveal">
+        <div class="card-photo"><img src="photos/simic.jpg" alt="Simic" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-simic.html">Roko<br>Simic</div>
+            <div class="player-meta"><span class="position-badge">ST</span><span class="nationality">Croatia</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">21</div><div class="stat-sub">10 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">858</div><div class="stat-sub">avg 41' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value gold">3</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Karlsruher SC</div>
+            <div class="league-name">2. Bundesliga</div>
+          </div>
+        </div>
+      </div></a>
+
+      <!-- Reindorf -->
+      <div style="display:block"><div class="player-card reveal reveal-delay-1">
+        <div class="card-photo"><img src="photos/reindorf.jpg" alt="Reindorf" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-reindorf.html">Michael<br>Reindorf</div>
+            <div class="player-meta"><span class="position-badge">ST</span><span class="nationality">England</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">2</div><div class="stat-sub">2 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">178</div><div class="stat-sub">avg 89' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Tamworth</div>
+            <div class="league-name">National League</div>
+
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Kion Etete -->
+      <a href="player-etete.html" style="text-decoration:none;color:inherit;display:block"><div class="player-card reveal reveal-delay-2">
+        <div class="card-photo"><img src="photos/etete.jpg" alt="Etete" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-etete.html">Kion<br>Etete</div>
+            <div class="player-meta"><span class="position-badge">ST</span><span class="nationality">England</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">3</div><div class="stat-sub">1 start</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">59</div><div class="stat-sub">avg 20' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">St. Mirren</div>
+            <div class="league-name">Scottish Premiership</div>
+          </div>
+        </div>
+      </div></a>
+
+      <!-- Luke Pearce -->
+      <div style="display:block"><div class="player-card reveal reveal-delay-3">
+        <div class="card-photo"><img src="photos/pearce.jpg" alt="Pearce" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-pearce.html">Luke<br>Pearce</div>
+            <div class="player-meta"><span class="position-badge">ST</span><span class="nationality">Ireland</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">IFK Mariehamn</div>
+            <div class="league-name">Veikkausliiga</div>
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Troy Perret (AM) -->
+      <div style="display:block"><div class="player-card reveal">
+        <div class="card-photo"><img src="photos/perret.jpg" alt="Perret" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-perret.html">Troy<br>Perret</div>
+            <div class="player-meta"><span class="position-badge">AM</span><span class="nationality">Wales</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">7</div><div class="stat-sub">3 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">289</div><div class="stat-sub">avg 41' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value gold">1</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Yeovil Town</div>
+            <div class="league-name">National League</div>
+          </div>
+        </div>
+      </div></div>
+
+    </div>
+  </div>
+
+  <!-- ══ MIDFIELDERS & WIDE ══ -->
+  <div class="position-group">
+    <div class="position-group-label">Midfielders &amp; Wide Players</div>
+    <div class="players-grid">
+
+      <!-- Tanatswa Nyakuhwa (LW) -->
+      <div style="display:block"><div class="player-card reveal">
+        <div class="card-photo"><img src="photos/nyakuhwa.jpg" alt="Nyakuhwa" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-nyakuhwa.html">Tanatswa<br>Nyakuhwa</div>
+            <div class="player-meta"><span class="position-badge">LW</span><span class="nationality">Wales</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">5</div><div class="stat-sub">0 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">98</div><div class="stat-sub">avg 20' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value gold">1</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Newport County</div>
+            <div class="league-name">League Two</div>
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Dakarai Mafico (DM) -->
+      <div style="display:block"><div class="player-card reveal reveal-delay-1">
+        <div class="card-photo"><img src="photos/mafico.jpg" alt="Mafico" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-mafico.html">Dakarai<br>Mafico</div>
+            <div class="player-meta"><span class="position-badge">DM</span><span class="nationality">Wales</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">7</div><div class="stat-sub">6 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">519</div><div class="stat-sub">avg 74' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Yeovil Town</div>
+            <div class="league-name">National League</div>
+          </div>
+        </div>
+      </div></div>
+
+    </div>
+  </div>
+
+  <!-- ══ DEFENDERS ══ -->
+  <div class="position-group">
+    <div class="position-group-label">Defenders</div>
+    <div class="players-grid">
+
+      <!-- Will Spiers (RB) -->
+      <div style="display:block"><div class="player-card reveal">
+        <div class="card-photo"><img src="photos/spiers.jpg" alt="Spiers" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-spiers.html">Will<br>Spiers</div>
+            <div class="player-meta"><span class="position-badge">RB</span><span class="nationality">Wales</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">14</div><div class="stat-sub">11 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">915</div><div class="stat-sub">avg 65' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value gold">4</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Merthyr Town</div>
+            <div class="league-name">National League South</div>
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Jesper Daland (CB) -->
+      <a href="player-daland.html" style="text-decoration:none;color:inherit;display:block"><div class="player-card reveal reveal-delay-1">
+        <div class="card-photo"><img src="photos/daland.jpg" alt="Daland" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-daland.html">Jesper<br>Daland</div>
+            <div class="player-meta"><span class="position-badge">CB</span><span class="nationality">Norway</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">17</div><div class="stat-sub">15 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">1387</div><div class="stat-sub">avg 82' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Assists</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Fortuna Düsseldorf</div>
+            <div class="league-name">2. Bundesliga</div>
+          </div>
+        </div>
+      </div></a>
+
+      <!-- Luey Giles (LB) -->
+      <div style="display:block"><div class="player-card reveal reveal-delay-2">
+        <div class="card-photo"><img src="photos/giles.jpg" alt="Giles" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-giles.html">Luey<br>Giles</div>
+            <div class="player-meta"><span class="position-badge">LB</span><span class="nationality">Wales</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">3</div><div class="stat-sub">1 start</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">126</div><div class="stat-sub">avg 42' / game</div></div>
+            <div><div class="stat-label">Goals</div><div class="stat-value">0</div></div>
+            <div><div class="stat-label">Clean Sheets</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Eastleigh</div>
+            <div class="league-name">National League</div>
+          </div>
+        </div>
+      </div></div>
+
+    </div>
+  </div>
+
+  <!-- ══ GOALKEEPERS ══ -->
+  <div class="position-group">
+    <div class="position-group-label">Goalkeepers</div>
+    <div class="players-grid">
+
+      <!-- Jake Dennis (GK) -->
+      <div style="display:block"><div class="player-card gk reveal">
+        <div class="card-photo"><img src="photos/dennis.jpg" alt="Dennis" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-dennis.html">Jake<br>Dennis</div>
+            <div class="player-meta"><span class="position-badge">GK</span><span class="nationality">Wales</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">4</div><div class="stat-sub">4 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">360</div><div class="stat-sub">avg 90' / game</div></div>
+            <div><div class="stat-label">Goals Conceded</div><div class="stat-value">8</div></div>
+            <div><div class="stat-label">Clean Sheets</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Merthyr Town</div>
+            <div class="league-name">National League North
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Luke Armstrong (GK) -->
+      <div style="display:block"><div class="player-card gk reveal reveal-delay-1">
+        <div class="card-photo"><img src="photos/armstrong.jpg" alt="Armstrong" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-armstrong.html">Luke<br>Armstrong</div>
+            <div class="player-meta"><span class="position-badge">GK</span><span class="nationality">Wales</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">19</div><div class="stat-sub">17 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">1636</div><div class="stat-sub">avg 86' / game</div></div>
+            <div><div class="stat-label">Goals Conceded</div><div class="stat-value">35</div></div>
+            <div><div class="stat-label">Clean Sheets</div><div class="stat-value gold">7</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Penybont</div>
+            <div class="league-name">Cymru Premier</div>
+          </div>
+        </div>
+      </div></div>
+
+      <!-- Ewan Griffiths (GK) -->
+      <div style="display:block"><div class="player-card gk reveal reveal-delay-2">
+        <div class="card-photo"><img src="photos/griffiths.jpg" alt="Griffiths" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block;"></div>
+        <div class="card-body">
+          <div>
+            <div class="player-name" data-page="player-griffiths.html">Ewan<br>Griffiths</div>
+            <div class="player-meta"><span class="position-badge">GK</span><span class="nationality">Wales</span></div>
+          </div>
+          <div class="stats-grid">
+            <div><div class="stat-label">Apps (Starts)</div><div class="stat-value">3</div><div class="stat-sub">3 starts</div></div>
+            <div><div class="stat-label">Minutes</div><div class="stat-value">270</div><div class="stat-sub">avg 90' / game</div></div>
+            <div><div class="stat-label">Goals Conceded</div><div class="stat-value">3</div></div>
+            <div><div class="stat-label">Clean Sheets</div><div class="stat-value">0</div></div>
+          </div>
+          <div>
+            <div class="card-divider"></div>
+            <div class="loan-pill"><div class="loan-dot"></div><span class="loan-pill-text">On Loan</span></div>
+            <div class="club-name">Cardiff Met</div>
+            <div class="league-name">Cymru Premier</div>
+          </div>
+        </div>
+      </div></div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- STAT SPOTLIGHT -->
+<section id="spotlight" style="background:#080f1e; padding:100px 80px;">
+  <div class="section-label">By The Numbers</div>
+  <h2 class="section-title">Loan Squad<br><span class="accent">Spotlight Stats</span></h2>
+  <p class="section-sub" style="margin-bottom:56px;">Key per-90 and season metrics for players with enough minutes to rank.</p>
+
+  <style>
+    .spotlight-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      margin-bottom: 48px;
+      border: 1px solid rgba(0,87,184,0.2);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .spotlight-card {
+      background: #0e1f3d;
+      padding: 28px 24px;
+      transition: background 0.2s;
+    }
+    .spotlight-card:hover { background: #122545; }
+    .spotlight-leader {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--blue);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .spotlight-stat-name {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .spotlight-value {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--white);
+    }
+    .spotlight-value .unit {
+      font-size: 22px;
+      color: var(--muted);
+      margin-left: 2px;
+    }
+    .spotlight-player {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-top: 10px;
+    }
+    .spotlight-context {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+      font-weight: 300;
+    }
+    .per90-table-wrap {
+      overflow-x: auto;
+    }
+    .per90-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .per90-table th {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--divider);
+    }
+    .per90-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--white);
+      font-weight: 300;
+    }
+    .per90-table tr:hover td { background: rgba(0,87,184,0.07); }
+    .per90-table .player-col {
+      font-family: "Barlow Condensed", sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+      text-transform: uppercase;
+    }
+    .per90-table .pos-col {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--blue);
+    }
+    .per90-table .highlight-cell {
+      color: var(--gold);
+      font-weight: 600;
+    }
+    .bar-cell { min-width: 120px; }
+    .mini-bar {
+      height: 4px;
+      background: rgba(0,87,184,0.2);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+    .mini-bar-fill {
+      height: 100%;
+      background: var(--blue);
+      border-radius: 2px;
+      transition: width 1s ease;
+    }
+    .mini-bar-fill.gold { background: var(--gold); }
+  </style>
+
+  <!-- Top stat spotlights -->
+  <div class="spotlight-grid reveal">
+    <div class="spotlight-card">
+      <div class="spotlight-leader">🏆 Most Goals</div>
+      <div class="spotlight-stat-name">Goals this season</div>
+      <div class="spotlight-value">3</div>
+      <div class="spotlight-player">Roko Simic</div>
+      <div class="spotlight-context">Karlsruher SC · 2. Bundesliga</div>
+    </div>
+    <div class="spotlight-card">
+      <div class="spotlight-leader">🎯 Most Assists</div>
+      <div class="spotlight-stat-name">Assists this season</div>
+      <div class="spotlight-value">4</div>
+      <div class="spotlight-player">Will Spiers</div>
+      <div class="spotlight-context">Merthyr Town · National League North</div>
+    </div>
+    <div class="spotlight-card">
+      <div class="spotlight-leader">⏱ Most Minutes</div>
+      <div class="spotlight-stat-name">Minutes played</div>
+      <div class="spotlight-value">1636<span class="unit">'</span></div>
+      <div class="spotlight-player">Luke Armstrong</div>
+      <div class="spotlight-context">Penybont · Cymru Premier</div>
+    </div>
+    <div class="spotlight-card">
+      <div class="spotlight-leader">🧤 Most Clean Sheets</div>
+      <div class="spotlight-stat-name">Clean sheets (GK)</div>
+      <div class="spotlight-value">7</div>
+      <div class="spotlight-player">Luke Armstrong</div>
+      <div class="spotlight-context">Penybont · Cymru Premier</div>
+    </div>
+  </div>
+
+  <!-- Per-90 table (outfield players with 90+ mins) -->
+  <div style="margin-top:40px;">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;">Per-90 Rankings · Outfield Players (min. 90 mins)</div>
+    <div class="per90-table-wrap reveal">
+      <table class="per90-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Pos</th>
+            <th>Club</th>
+            <th>Mins</th>
+            <th>Goals/90</th>
+            <th>Assists/90</th>
+            <th>G+A/90</th>
+            <th>Mins/App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="player-col">Roko Simic</td>
+            <td class="pos-col">ST</td>
+            <td>Karlsruher SC</td>
+            <td>858</td>
+            <td class="highlight-cell">0.31</td>
+            <td>0.00</td>
+            <td class="highlight-cell">0.31</td>
+            <td><span>41'</span><div class="mini-bar"><div class="mini-bar-fill" style="width:46%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="player-col">Will Spiers</td>
+            <td class="pos-col">RB</td>
+            <td>Merthyr Town</td>
+            <td>915</td>
+            <td>0.00</td>
+            <td class="highlight-cell">0.39</td>
+            <td class="highlight-cell">0.39</td>
+            <td><span>65'</span><div class="mini-bar"><div class="mini-bar-fill" style="width:72%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="player-col">Jesper Daland</td>
+            <td class="pos-col">CB</td>
+            <td>Fortuna Düsseldorf</td>
+            <td>1387</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td><span>82'</span><div class="mini-bar"><div class="mini-bar-fill" style="width:91%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="player-col">Dakarai Mafico</td>
+            <td class="pos-col">DM</td>
+            <td>Yeovil Town</td>
+            <td>519</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td><span>74'</span><div class="mini-bar"><div class="mini-bar-fill" style="width:82%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="player-col">Troy Perret</td>
+            <td class="pos-col">AM</td>
+            <td>Yeovil Town</td>
+            <td>289</td>
+            <td>0.00</td>
+            <td class="highlight-cell">0.31</td>
+            <td class="highlight-cell">0.31</td>
+            <td><span>41'</span><div class="mini-bar"><div class="mini-bar-fill" style="width:46%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="player-col">Reindorf</td>
+            <td class="pos-col">ST</td>
+            <td>Tamworth</td>
+            <td>178</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td>0.00</td>
+            <td><span>89'</span><div class="mini-bar"><div class="mini-bar-fill gold" style="width:99%"></div></div></td>
+          </tr>
+          <tr>
+            <td class="player-col">Tanatswa Nyakuhwa</td>
+            <td class="pos-col">LW</td>
+            <td>Newport County</td>
+            <td>98</td>
+            <td>0.00</td>
+            <td class="highlight-cell">0.92</td>
+            <td class="highlight-cell">0.92</td>
+            <td><span>20'</span><div class="mini-bar"><div class="mini-bar-fill" style="width:22%"></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;font-style:italic;">* Per-90 stats are illustrative based on available data. Stats sourced manually — not live feed.</p>
+  </div>
+</section>
+
+<!-- WORLD MAP -->
+<section id="map" style="background:var(--navy); padding:80px 80px 60px;">
+  <div class="section-label">On The Road</div>
+  <h2 class="section-title">Find Our <span class="accent">Bluebirds</span></h2>
+  <p class="section-sub" style="margin-bottom:40px;">Every Cardiff City loanee pinned to their ground. Click a cluster to see who's there.</p>
+
+  <style>
+    .map-btns { display:flex; margin-bottom:16px; border:1px solid rgba(0,87,184,.4); border-radius:4px; overflow:hidden; width:fit-content; }
+    .map-btn { padding:10px 28px; font-family:"Barlow Condensed",sans-serif; font-size:13px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; border:none; background:transparent; color:rgba(255,255,255,.5); transition:all .2s; }
+    .map-btn.on { background:#0057B8; color:#fff; }
+    .map-btn:hover:not(.on) { background:rgba(0,87,184,.15); color:#fff; }
+    #cmap { width:100%; height:520px; border-radius:6px; border:2px solid rgba(0,87,184,.4); }
+    body { margin: 0; }
+    .map-note { margin-top:10px; font-size:11px; color:rgba(255,255,255,.35); font-style:italic; }
+    .leaflet-popup-content-wrapper { background:#0d1c38 !important; border:1px solid rgba(0,87,184,.6) !important; border-radius:6px !important; box-shadow:0 12px 40px rgba(0,0,0,.7) !important; color:#fff !important; }
+    .leaflet-popup-tip { background:#0d1c38 !important; }
+    .leaflet-popup-content { margin:14px 18px !important; font-family:"DM Sans",sans-serif !important; }
+    .pn { font-family:"Barlow Condensed",sans-serif; font-size:17px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#fff; margin-bottom:3px; }
+    .pc { font-size:12px; color:rgba(255,255,255,.65); margin-bottom:2px; }
+    .pl { font-size:11px; color:#0057B8; font-weight:600; letter-spacing:.04em; }
+    .leaflet-tooltip.mtt { background:#0d1c38; border:1px solid rgba(0,87,184,.7); color:#fff; font-family:"Barlow Condensed",sans-serif; font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; border-radius:4px; padding:5px 12px; white-space:nowrap; box-shadow:0 4px 16px rgba(0,0,0,.6); }
+    .leaflet-tooltip-top.mtt::before { border-top-color:rgba(0,87,184,.7); }
+    .leaflet-control-zoom { border:1px solid rgba(0,87,184,.4) !important; border-radius:4px !important; overflow:hidden; }
+    .leaflet-control-zoom a { background:#0d1c38 !important; color:#fff !important; border-color:rgba(0,87,184,.3) !important; }
+    .leaflet-control-zoom a:hover { background:#0057B8 !important; }
+    .leaflet-control-attribution { display:none !important; }
+  </style>
+
+  <div class="map-btns">
+    <button class="map-btn on" id="btn-eu" onclick="mv('europe')">&#127757; Europe View</button>
+    <button class="map-btn"    id="btn-uk" onclick="mv('uk')">&#127468;&#127463; UK View</button>
+  </div>
+  <div id="cmap"></div>
+  <p class="map-note" id="mhint">Hover a pin to see the player &nbsp;&middot;&nbsp; Click for full details</p>
+
+  <script>
+  function initCCFCMap() {
+    if (window._ccfcMapDone) return;
+    var el = document.getElementById('cmap');
+    if (!el || typeof L === 'undefined') return;
+    window._ccfcMapDone = true;
+
+    var PL = [
+      {n:"Roko Simic",        c:"Karlsruher SC",     l:"2. Bundesliga",        lat:49.0033, lng:8.4136,  iso:"DE",  pg:"player-simic.html"},
+      {n:"Jesper Daland",     c:"Fortuna Dusseldorf",l:"2. Bundesliga",        lat:51.2605, lng:6.7336,  iso:"DE",  pg:"player-daland.html"},
+      {n:"Kion Etete",        c:"St Mirren",         l:"Scottish Premiership", lat:55.8447, lng:-4.4239, iso:"SCT", pg:"player-etete.html"},
+      {n:"Luke Pearce",       c:"IFK Mariehamn",     l:"Veikkausliiga",        lat:60.0966, lng:19.9348, iso:"FI",  pg:"player-pearce.html"},
+      {n:"Michael Reindorf",  c:"Tamworth FC",       l:"National League",      lat:52.6348, lng:-1.6929, iso:"ENG", pg:"player-reindorf.html"},
+      {n:"Troy Perrett",      c:"Yeovil Town",       l:"National League",      lat:50.9474, lng:-2.6693, iso:"ENG", pg:"player-perret.html"},
+      {n:"Dakarai Mafico",    c:"Yeovil Town",       l:"National League",      lat:50.9494, lng:-2.6683, iso:"ENG", pg:"player-mafico.html"},
+      {n:"Luey Giles",        c:"Eastleigh FC",      l:"National League",      lat:50.9697, lng:-1.3564, iso:"ENG", pg:"player-giles.html"},
+      {n:"Will Spiers",       c:"Merthyr Town",      l:"National League North", lat:51.7445, lng:-3.3773, iso:"WLS", pg:"player-spiers.html"},
+      {n:"Tanatswa Nyakuhwa", c:"Newport County",    l:"League Two",           lat:51.5894, lng:-2.9981, iso:"WLS", pg:"player-nyakuhwa.html"},
+      {n:"Luke Armstrong",    c:"Penybont FC",       l:"Cymru Premier",        lat:51.5042, lng:-3.5778, iso:"WLS", pg:"player-armstrong.html"},
+      {n:"Ewan Griffiths",    c:"Cardiff Met FC",    l:"Cymru Premier",        lat:51.5060, lng:-3.1671, iso:"WLS", pg:"player-griffiths.html"},
+      {n:"Jake Dennis",       c:"Merthyr Town",      l:"National League North",        lat:51.7435, lng:-3.3763, iso:"WLS", pg:"player-dennis.html"}
+    ];
+
+    var cmap = L.map('cmap', {
+      scrollWheelZoom: false, zoomControl: true,
+      attributionControl: false, minZoom: 3, maxZoom: 14
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      subdomains: 'abc', maxZoom: 19
+    }).addTo(cmap);
+
+    /* ── Icon factories ── */
+    function makePIN() {
+      return L.divIcon({
+        className: '',
+        html: '<div style="width:16px;height:16px;background:#0057B8;border:2.5px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.5),0 0 0 3px rgba(0,87,184,.3);cursor:pointer;"></div>',
+        iconSize:[16,16], iconAnchor:[8,8], popupAnchor:[0,-12]
+      });
+    }
+
+    function makeClusterIcon(count) {
+      return L.divIcon({
+        className: '',
+        html: '<div style="width:28px;height:28px;background:#0057B8;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,.55),0 0 0 4px rgba(0,87,184,.35);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:13px;color:#fff;letter-spacing:0;">' + count + '</div>',
+        iconSize:[28,28], iconAnchor:[14,14], popupAnchor:[0,-16]
+      });
+    }
+
+    var mainLayer   = L.layerGroup().addTo(cmap); // clusters + solo pins
+    var explodeLayer = L.layerGroup().addTo(cmap); // exploded pins + lines
+
+    /* ── Group players by club ── */
+    function groupByClub(list) {
+      var clubs = {};
+      list.forEach(function(p) {
+        if (!clubs[p.c]) clubs[p.c] = {lat:p.lat, lng:p.lng, players:[]};
+        clubs[p.c].players.push(p);
+      });
+      return clubs;
+    }
+
+    /* ── Pop-up HTML for a single player ── */
+    function popupHTML(p) {
+      return '<div class="pn">'+ p.n +'</div>'+
+             '<div class="pc">'+ p.c +'</div>'+
+             '<div class="pl">'+ p.l +'</div>'+
+             '<div style="margin-top:10px"><a href="'+ p.pg +'" style="font-size:11px;color:#0057B8;font-family:\'Barlow Condensed\',sans-serif;letter-spacing:.08em;text-transform:uppercase;font-weight:700;">View Profile &rarr;</a></div>';
+    }
+
+    /* ── Explode a cluster outward with lines ── */
+    function explodeCluster(clubKey, centerLat, centerLng, players) {
+      explodeLayer.clearLayers();
+      mainLayer.clearLayers(); // hide all base pins while exploded
+
+      var n       = players.length;
+      var radiusPx = 60;
+      var centerPt = cmap.latLngToContainerPoint([centerLat, centerLng]);
+
+      players.forEach(function(p, i) {
+        var angle  = (2 * Math.PI / n) * i - Math.PI / 2;
+        var px     = centerPt.x + radiusPx * Math.cos(angle);
+        var py     = centerPt.y + radiusPx * Math.sin(angle);
+        var latlng = cmap.containerPointToLatLng([px, py]);
+
+        // Dashed line from club centre to player pin
+        L.polyline([[centerLat, centerLng], [latlng.lat, latlng.lng]], {
+          color:'#0057B8', weight:1.5, opacity:.6, dashArray:'5,5'
+        }).addTo(explodeLayer);
+
+        // Individual player pin
+        L.marker([latlng.lat, latlng.lng], {icon: makePIN()})
+          .bindTooltip(p.n, {direction:'top', className:'mtt', offset:[0,-6]})
+          .bindPopup(popupHTML(p), {maxWidth:220})
+          .addTo(explodeLayer);
+      });
+
+      // Centre anchor dot (the actual club location)
+      L.circleMarker([centerLat, centerLng], {
+        radius:5, color:'#fff', fillColor:'#0057B8', fillOpacity:1, weight:2
+      }).bindTooltip('Click map to collapse', {direction:'top', className:'mtt'})
+        .addTo(explodeLayer);
+
+      document.getElementById('mhint').textContent = 'Click the map to collapse · Click a pin for player details';
+    }
+
+    /* ── Collapse back to clusters ── */
+    function collapse(filterFn) {
+      explodeLayer.clearLayers();
+      drawPins(filterFn);
+      document.getElementById('mhint').textContent = 'Hover a pin to see the player · Click clusters to expand';
+    }
+
+    var currentFilter = null;
+
+    /* ── Draw all pins / clusters ── */
+    function drawPins(filterFn) {
+      currentFilter = filterFn || null;
+      mainLayer.clearLayers();
+      explodeLayer.clearLayers();
+      var list   = filterFn ? PL.filter(filterFn) : PL;
+      var clubs  = groupByClub(list);
+
+      Object.keys(clubs).forEach(function(clubKey) {
+        var club    = clubs[clubKey];
+        var players = club.players;
+
+        if (players.length === 1) {
+          // Solo pin
+          var p = players[0];
+          L.marker([club.lat, club.lng], {icon: makePIN()})
+            .bindTooltip(p.n, {direction:'top', className:'mtt', offset:[0,-6]})
+            .bindPopup(popupHTML(p), {maxWidth:220})
+            .addTo(mainLayer);
+        } else {
+          // Cluster pin
+          var label = players.length + ' players at ' + clubKey;
+          L.marker([club.lat, club.lng], {icon: makeClusterIcon(players.length)})
+            .bindTooltip(label, {direction:'top', className:'mtt', offset:[0,-10]})
+            .on('click', (function(key, clat, clng, pls) {
+              return function() { explodeCluster(key, clat, clng, pls); };
+            })(clubKey, club.lat, club.lng, players))
+            .addTo(mainLayer);
+        }
+      });
+    }
+
+    // Click map background to collapse
+    cmap.on('click', function() {
+      if (explodeLayer.getLayers().length > 0) {
+        collapse(currentFilter);
+      }
+    });
+
+    window.mv = function(v) {
+      document.getElementById('btn-eu').classList.toggle('on', v === 'europe');
+      document.getElementById('btn-uk').classList.toggle('on', v === 'uk');
+      if (v === 'europe') {
+        cmap.flyTo([52, 8], 4, {duration:1});
+        drawPins();
+        document.getElementById('mhint').textContent = 'Hover a pin to see the player · Click clusters to expand';
+      } else {
+        cmap.flyTo([54.2, -2.5], 6, {duration:1});
+        drawPins(function(p){ return p.iso==='ENG'||p.iso==='WLS'||p.iso==='SCT'; });
+        document.getElementById('mhint').textContent = 'Hover a pin to see the player · Click clusters to expand';
+      }
+    };
+
+    cmap.setView([52, 8], 4);
+    drawPins();
+
+  } // end initCCFCMap
+
+  initCCFCMap();
+  document.addEventListener('DOMContentLoaded', initCCFCMap);
+  </script>
+
+</section>
+
+
+
+<!-- MONTHLY REVIEWS -->
+<section id="reviews" style="background:#080f1e; padding:100px 80px;">
+  <div class="section-label">Monthly Reviews</div>
+  <h2 class="section-title">The Loan Squad<br><span class="accent">Month by Month</span></h2>
+  <div class="reviews-grid">
+    <div class="review-card reveal" onclick="openReview('mar26')">
+      <div class="review-card-month">March 2026</div>
+      <div class="review-card-season">2025/26 Season</div>
+      <div class="review-card-footer"><span class="review-open-btn">View Review →</span><span class="review-player-count">13 players</span></div>
+    </div>
+    <div class="review-card reveal reveal-delay-1" onclick="openReview('feb26')">
+      <div class="review-card-month">February 2026</div>
+      <div class="review-card-season">2025/26 Season</div>
+      <div class="review-card-footer"><span class="review-open-btn">View Review →</span><span class="review-player-count">12 players</span></div>
+    </div>
+    <div class="review-card reveal reveal-delay-2" onclick="openReview('jan26')">
+      <div class="review-card-month">January 2026</div>
+      <div class="review-card-season">2025/26 Season</div>
+      <div class="review-card-footer"><span class="review-open-btn">View Review →</span><span class="review-player-count">11 players</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="modal-overlay" id="reviewModal" onclick="closeOnOverlay(event)">
+  <div class="modal" id="modalInner">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-subtitle">Monthly Loan Review · 2025/26 Season</div>
+      </div>
+      <button class="modal-close" onclick="closeReview()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- LOAN HISTORY -->
+<section id="history" style="background:#080f1e; padding:100px 80px 80px;">
+
+  <div class="section-label">The Archive</div>
+  <h2 class="section-title">Previous <span class="accent">Loan Seasons</span></h2>
+  <p class="section-sub" style="margin-bottom:48px;">A season-by-season breakdown of every Cardiff City player sent out on loan — where they went, what they achieved, and who stood out.</p>
+
+  <style>
+    /* Season tabs */
+    .history-tabs { display:flex; gap:8px; margin-bottom:40px; flex-wrap:wrap; }
+    .history-tab {
+      font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
+      border:1px solid rgba(0,87,184,.4); border-radius:3px;
+      background:transparent; color:rgba(255,255,255,.45);
+      padding:10px 24px; transition:all .2s;
+    }
+    .history-tab:hover { background:rgba(0,87,184,.15); color:#fff; border-color:rgba(0,87,184,.7); }
+    .history-tab.active { background:#0057B8; color:#fff; border-color:#0057B8; }
+
+    /* Season content panels */
+    .season-panel { display:none; }
+    .season-panel.active { display:block; }
+
+    /* History map */
+    .hmap { width:100%; height:480px; border-radius:6px; border:2px solid rgba(0,87,184,.4); margin-bottom:40px; }
+
+    /* History map view toggle */
+    .hmap-btns { display:flex; margin-bottom:14px; border:1px solid rgba(0,87,184,.4); border-radius:4px; overflow:hidden; width:fit-content; }
+    .hmap-btn { padding:8px 22px; font-family:"Barlow Condensed",sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; border:none; background:transparent; color:rgba(255,255,255,.45); transition:all .2s; }
+    .hmap-btn.on { background:#0057B8; color:#fff; }
+    .hmap-btn:hover:not(.on) { background:rgba(0,87,184,.15); color:#fff; }
+
+    /* Featured player */
+    .featured-wrap { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-bottom:40px; align-items:start; }
+    .featured-card {
+      background:#0e1f3d; border-radius:4px; border-left:3px solid #F5C842;
+      padding:28px 28px 24px; position:relative; overflow:hidden;
+    }
+    .featured-card::before {
+      content:''; position:absolute; top:0; right:0; bottom:0; width:3px;
+      background:linear-gradient(to bottom,#0057B8,transparent);
+    }
+    .featured-badge {
+      font-size:9px; font-weight:700; letter-spacing:.25em; text-transform:uppercase;
+      color:#F5C842; margin-bottom:14px; display:flex; align-items:center; gap:8px;
+    }
+    .featured-badge::before { content:''; width:16px; height:2px; background:#F5C842; display:block; }
+    .featured-name {
+      font-family:'Barlow Condensed',sans-serif; font-size:42px; font-weight:900;
+      text-transform:uppercase; line-height:1; letter-spacing:-.02em; margin-bottom:6px;
+    }
+    .featured-name span { color:#0057B8; }
+    .featured-meta { display:flex; gap:8px; align-items:center; margin-bottom:18px; }
+    .featured-pos { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; background:#0057B8; color:#fff; padding:3px 8px; border-radius:2px; }
+    .featured-nat { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.45); font-weight:500; }
+    .featured-club { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; text-transform:uppercase; color:#fff; }
+    .featured-league { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.4); }
+    .featured-divider { height:1px; background:rgba(255,255,255,.08); margin:16px 0; }
+    .featured-quote {
+      font-size:14px; font-weight:300; color:rgba(255,255,255,.7); line-height:1.7;
+      font-style:italic; border-left:2px solid rgba(245,200,66,.4); padding-left:14px;
+    }
+    .featured-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:18px; }
+    .featured-stat-val { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:900; color:#fff; line-height:1; }
+    .featured-stat-val.gold { color:#F5C842; }
+    .featured-stat-lbl { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.4); margin-top:3px; }
+
+    /* Season summary */
+    .season-summary { background:#0e1f3d; border-radius:4px; padding:28px; }
+    .season-summary-title { font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:.25em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:20px; }
+    .summary-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; margin-bottom:20px; }
+    .summary-stat { background:#0a1628; padding:18px 16px; }
+    .summary-stat-num { font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:#fff; line-height:1; }
+    .summary-stat-num span { color:#0057B8; }
+    .summary-stat-lbl { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-top:4px; }
+    .summary-tags { display:flex; gap:10px; flex-wrap:wrap; margin-top:36px; }
+    .summary-tag { font-size:13px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; background:rgba(0,87,184,.15); border:1px solid rgba(0,87,184,.35); color:rgba(255,255,255,.75); padding:10px 18px; border-radius:4px; line-height:1.3; }
+    .summary-tag.gold { background:rgba(245,200,66,.12); border-color:rgba(245,200,66,.5); color:#F5C842; font-size:13px; }
+  </style>
+
+  <!-- Season switcher -->
+  <div class="history-tabs">
+    <button class="history-tab active" onclick="showSeason('2425')">2024/25</button>
+    <button class="history-tab" onclick="showSeason('2324')">2023/24</button>
+    <button class="history-tab" onclick="showSeason('2223')">2022/23</button>
+    <button class="history-tab" onclick="showSeason('2122')">2021/22</button>
+    <button class="history-tab" onclick="showSeason('2021')">2020/21</button>
+    <button class="history-tab" onclick="showSeason('1920')">2019/20</button>
+    <button class="history-tab" onclick="showSeason('1819')">2018/19</button>
+    <!-- Add more seasons here:
+    -->
+  </div>
+
+  <!-- ═══════════ 2024/25 ═══════════ -->
+  <div id="season-2425" class="season-panel active">
+
+    <div class="hmap-btns">
+      <button class="hmap-btn on" id="hbtn-2425-eu" onclick="hmv('2425','europe')">&#127757; Europe View</button>
+      <button class="hmap-btn"    id="hbtn-2425-uk" onclick="hmv('2425','uk')">&#127468;&#127463; UK View</button>
+    </div>
+    <p id="hhint-2425" style="font-size:11px;color:rgba(255,255,255,.35);font-style:italic;margin-bottom:10px;">Hover a pin to see the player · Click clusters to expand</p>
+    <div id="hmap-2425" class="hmap"></div>
+
+    <div class="featured-wrap" style="margin-top:40px;">
+
+      <!-- Featured player: Joel Colwill -->
+      <div class="featured-card reveal">
+        <div class="featured-badge">⭐ Loan of the Season · 2024/25</div>
+        <div class="featured-name">Joel<br><span>Colwill</span></div>
+        <div class="featured-meta">
+          <span class="featured-pos">AM</span>
+          <span class="featured-nat">Wales</span>
+        </div>
+        <div class="featured-club">Cheltenham Town → Exeter City</div>
+        <div class="featured-league">League Two &rarr; League One</div>
+        <div class="featured-divider"></div>
+        <div class="featured-quote">46 appearances across two loan spells gave Colwill exactly what Cardiff needed him to have — physicality. The step up in tempo and contact at League Two and League One level hardened him considerably, and when he returned to Cardiff for 2025/26 he slotted into the senior squad with a comfort and authority that would simply not have been there without those seasons away.</div>
+        <div class="featured-stats">
+          <div><div class="featured-stat-val">46</div><div class="featured-stat-lbl">Appearances</div></div>
+          <div><div class="featured-stat-val gold">9</div><div class="featured-stat-lbl">Goals</div></div>
+          <div><div class="featured-stat-val">3</div><div class="featured-stat-lbl">Assists</div></div>
+        </div>
+      </div>
+
+      <!-- Season summary -->
+      <div class="season-summary reveal reveal-delay-1">
+        <div class="season-summary-title">2024/25 Season at a Glance</div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>16</span></div>
+            <div class="summary-stat-lbl">Players Loaned</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>4</span></div>
+            <div class="summary-stat-lbl">Countries</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>17</span></div>
+            <div class="summary-stat-lbl">Loan Spells</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>9</span></div>
+            <div class="summary-stat-lbl">Different Leagues</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <div class="summary-tags">
+          <span class="summary-tag">4 countries: England · Wales · Belgium · Ireland</span>
+          <span class="summary-tag">KV Kortrijk host Cardiff for the 2nd season running</span>
+          <span class="summary-tag">Sligo Rovers for the 2nd year running</span>
+        </div>
+  </div><!-- end 2424/25 -->
+
+  <!-- ═══════════ 2023/24 ═══════════ -->
+  <div id="season-2324" class="season-panel">
+
+    <div class="hmap-btns">
+      <button class="hmap-btn on" id="hbtn-2324-eu" onclick="hmv('2324','europe')">&#127757; Europe View</button>
+      <button class="hmap-btn"    id="hbtn-2324-uk" onclick="hmv('2324','uk')">&#127468;&#127463; UK View</button>
+    </div>
+    <p id="hhint-2324" style="font-size:11px;color:rgba(255,255,255,.35);font-style:italic;margin-bottom:10px;">Hover a pin to see the player · Click clusters to expand</p>
+    <div id="hmap-2324" class="hmap"></div>
+
+    <div class="featured-wrap" style="margin-top:40px;">
+
+      <!-- Featured player: Joel Bagan -->
+      <div class="featured-card reveal">
+        <div class="featured-badge">⭐ Loan of the Season · 2023/24</div>
+        <div class="featured-name">Joel<br><span>Bagan</span></div>
+        <div class="featured-meta">
+          <span class="featured-pos">LB</span>
+          <span class="featured-nat">Wales</span>
+        </div>
+        <div class="featured-club">Zulte Waregem</div>
+        <div class="featured-league">Belgian Challenger Pro League</div>
+        <div class="featured-divider"></div>
+        <div class="featured-quote">Playing week-in, week-out in Belgian football at a high level gave Bagan the consistency and competitive edge that has made him one of Cardiff's most dependable performers since his return. Rarely flashy, always reliable — he has become the kind of player Cardiff can build around on the left side, and that platform was built in Waregem.</div>
+        <div class="featured-stats">
+          <div><div class="featured-stat-val">24</div><div class="featured-stat-lbl">Appearances</div></div>
+          <div><div class="featured-stat-val gold">1</div><div class="featured-stat-lbl">Assists</div></div>
+          <div><div class="featured-stat-val">1,566</div><div class="featured-stat-lbl">Minutes</div></div>
+        </div>
+      </div>
+
+      <!-- Season summary -->
+      <div class="season-summary reveal reveal-delay-1">
+        <div class="season-summary-title">2023/24 Season at a Glance</div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>16</span></div>
+            <div class="summary-stat-lbl">Players Loaned</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>4</span></div>
+            <div class="summary-stat-lbl">Countries</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>18</span></div>
+            <div class="summary-stat-lbl">Loan Spells</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>10</span></div>
+            <div class="summary-stat-lbl">Different Leagues</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <div class="summary-tags">
+          <span class="summary-tag">4 countries: England · Scotland · Belgium · Ireland</span>
+          <span class="summary-tag">KV Kortrijk take 3 Cardiff players — most at one club in a single season</span>
+          <span class="summary-tag">Sligo Rovers for the first of 2 consecutive seasons</span>
+        </div>
+  </div><!-- end 2023/24 -->
+
+  <!-- ═══════════ 2022/23 ═══════════ -->
+  <div id="season-2223" class="season-panel">
+
+    <div class="hmap-btns">
+      <button class="hmap-btn on" id="hbtn-2223-eu" onclick="hmv('2223','europe')">&#127757; Europe View</button>
+      <button class="hmap-btn"    id="hbtn-2223-uk" onclick="hmv('2223','uk')">&#127468;&#127463; UK View</button>
+    </div>
+    <p id="hhint-2223" style="font-size:11px;color:rgba(255,255,255,.35);font-style:italic;margin-bottom:10px;">Hover a pin to see the player · Click clusters to expand</p>
+    <div id="hmap-2223" class="hmap"></div>
+
+    <div class="featured-wrap" style="margin-top:40px;">
+
+      <!-- Featured player: Mark McGuinness -->
+      <div class="featured-card reveal">
+        <div class="featured-badge">⭐ Loan of the Season · 2022/23</div>
+        <div class="featured-name">Mark<br><span>McGuinness</span></div>
+        <div class="featured-meta">
+          <span class="featured-pos">CB</span>
+          <span class="featured-nat">Ireland</span>
+        </div>
+        <div class="featured-club">Sheffield Wednesday</div>
+        <div class="featured-league">EFL League One</div>
+        <div class="featured-divider"></div>
+        <div class="featured-quote">McGuinness was so good at Sheffield Wednesday that Cardiff recalled him in January — and he immediately slotted straight into the first team, completing a full 90 minutes in every single Cardiff game he featured in for the rest of the 2022/23 season. That kind of seamless transition from loan to first team is exactly what the programme is designed to produce.</div>
+        <div class="featured-stats">
+          <div><div class="featured-stat-val">24</div><div class="featured-stat-lbl">Appearances</div></div>
+          <div><div class="featured-stat-val gold">1</div><div class="featured-stat-lbl">Goals</div></div>
+          <div><div class="featured-stat-val">1,812</div><div class="featured-stat-lbl">Minutes</div></div>
+        </div>
+      </div>
+
+      <!-- Season summary -->
+      <div class="season-summary reveal reveal-delay-1">
+        <div class="season-summary-title">2022/23 Season at a Glance</div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>10</span></div>
+            <div class="summary-stat-lbl">Players Loaned</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>3</span></div>
+            <div class="summary-stat-lbl">Countries</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>10</span></div>
+            <div class="summary-stat-lbl">Loan Spells</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>5</span></div>
+            <div class="summary-stat-lbl">Different Leagues</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <div class="summary-tags">
+          <span class="summary-tag gold">🥇 First Cardiff loanee in Belgium</span>
+          <span class="summary-tag">McGuinness recalled in January — straight into the XI every game</span>
+          <span class="summary-tag">Just 3 countries — fewest in the archive</span>
+        </div>
+  </div><!-- end 2022/23 -->
+
+  <!-- ═══════════ 2021/22 ═══════════ -->
+  <div id="season-2122" class="season-panel">
+
+    <div class="hmap-btns">
+      <button class="hmap-btn on" id="hbtn-2122-eu" onclick="hmv('2122','europe')">&#127757; Europe View</button>
+      <button class="hmap-btn"    id="hbtn-2122-uk" onclick="hmv('2122','uk')">&#127468;&#127463; UK View</button>
+    </div>
+    <p id="hhint-2122" style="font-size:11px;color:rgba(255,255,255,.35);font-style:italic;margin-bottom:10px;">Hover a pin to see the player · Click clusters to expand</p>
+    <div id="hmap-2122" class="hmap"></div>
+
+    <div class="featured-wrap" style="margin-top:40px;">
+
+      <!-- Featured player: Ryan Wintle -->
+      <div class="featured-card reveal">
+        <div class="featured-badge">⭐ Loan of the Season · 2021/22</div>
+        <div class="featured-name">Ryan<br><span>Wintle</span></div>
+        <div class="featured-meta">
+          <span class="featured-pos">DM</span>
+          <span class="featured-nat">England</span>
+        </div>
+        <div class="featured-club">Blackpool</div>
+        <div class="featured-league">EFL Championship</div>
+        <div class="featured-divider"></div>
+        <div class="featured-quote">Cardiff brought him back in January and he's barely been out of the side since. Wintle went to Blackpool, held his own in the Championship week after week, and came back a different player — calmer, more assured, better at dictating the tempo. That kind of mid-season recall that actually works out is rarer than you'd think.</div>
+        <div class="featured-stats">
+          <div><div class="featured-stat-val">18</div><div class="featured-stat-lbl">Appearances</div></div>
+          <div><div class="featured-stat-val gold">0</div><div class="featured-stat-lbl">Goals</div></div>
+          <div><div class="featured-stat-val">1,609</div><div class="featured-stat-lbl">Minutes</div></div>
+        </div>
+      </div>
+
+      <!-- Season summary -->
+      <div class="season-summary reveal reveal-delay-1">
+        <div class="season-summary-title">2021/22 Season at a Glance</div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>11</span></div>
+            <div class="summary-stat-lbl">Players Loaned</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>4</span></div>
+            <div class="summary-stat-lbl">Countries</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>11</span></div>
+            <div class="summary-stat-lbl">Loan Spells</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>7</span></div>
+            <div class="summary-stat-lbl">Different Leagues</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <div class="summary-tags">
+          <span class="summary-tag gold">🥇 First Cardiff loanee in Northern Ireland</span>
+          <span class="summary-tag">Wintle recalled in January — never really left the XI again</span>
+          <span class="summary-tag">Kieron Evans begins 4 straight seasons on loan</span>
+        </div>
+  </div><!-- end 2021/22 -->
+
+  <!-- ═══════════ 2020/21 ═══════════ -->
+  <div id="season-2021" class="season-panel">
+
+    <div class="hmap-btns">
+      <button class="hmap-btn on" id="hbtn-2021-eu" onclick="hmv('2021','europe')">&#127757; Europe View</button>
+      <button class="hmap-btn"    id="hbtn-2021-uk" onclick="hmv('2021','uk')">&#127468;&#127463; UK View</button>
+    </div>
+    <p id="hhint-2021" style="font-size:11px;color:rgba(255,255,255,.35);font-style:italic;margin-bottom:10px;">Hover a pin to see the player · Click clusters to expand</p>
+    <div id="hmap-2021" class="hmap"></div>
+
+    <div class="featured-wrap" style="margin-top:40px;">
+
+      <!-- Featured player: Aden Flint -->
+      <div class="featured-card reveal">
+        <div class="featured-badge" style="color:rgba(255,255,255,.4);border-left-color:rgba(255,255,255,.2);">📋 Loan of the Season · 2020/21</div>
+        <div class="featured-name">Aden<br><span>Flint</span></div>
+        <div class="featured-meta">
+          <span class="featured-pos">CB</span>
+          <span class="featured-nat">England</span>
+        </div>
+        <div class="featured-club">Sheffield Wednesday</div>
+        <div class="featured-league">EFL Championship</div>
+        <div class="featured-divider"></div>
+        <div class="featured-quote">Four appearances. 287 minutes. That's your loan of the season. Flint wasn't sent to Wednesday because anyone thought it was going to unlock something — he was shipped out to clear his wages off the books. He barely played. The whole season had that energy; a scrappy, poorly structured group of loans with no real thread running through them. One to look back on and learn from.</div>
+        <div class="featured-stats">
+          <div><div class="featured-stat-val">4</div><div class="featured-stat-lbl">Appearances</div></div>
+          <div><div class="featured-stat-val gold" style="color:rgba(255,255,255,.3);">—</div><div class="featured-stat-lbl">Goals</div></div>
+          <div><div class="featured-stat-val">287</div><div class="featured-stat-lbl">Minutes</div></div>
+        </div>
+      </div>
+
+      <!-- Season summary -->
+      <div class="season-summary reveal reveal-delay-1">
+        <div class="season-summary-title">2020/21 Season at a Glance</div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>12</span></div>
+            <div class="summary-stat-lbl">Players Loaned</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>5</span></div>
+            <div class="summary-stat-lbl">Countries</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>14</span></div>
+            <div class="summary-stat-lbl">Loan Spells</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>9</span></div>
+            <div class="summary-stat-lbl">Different Leagues</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <div class="summary-tags">
+          <span class="summary-tag gold">🥇 First Cardiff loanee in Germany</span>
+          <span class="summary-tag">5 countries: England · Ireland · Wales · Scotland · Germany</span>
+          <span class="summary-tag">Most Irish loan spells in the archive</span>
+          <span class="summary-tag">Ciaron Brown at Livingston for the 3rd year running</span>
+        </div>
+  </div><!-- end 2020/21 -->
+
+  <!-- ═══════════ 2019/20 ═══════════ -->
+  <div id="season-1920" class="season-panel">
+
+    <div class="hmap-btns">
+      <button class="hmap-btn on" id="hbtn-1920-eu" onclick="hmv('1920','europe')">&#127757; Europe View</button>
+      <button class="hmap-btn"    id="hbtn-1920-uk" onclick="hmv('1920','uk')">&#127468;&#127463; UK View</button>
+    </div>
+    <p id="hhint-1920" style="font-size:11px;color:rgba(255,255,255,.35);font-style:italic;margin-bottom:10px;">Hover a pin to see the player · Click clusters to expand</p>
+    <div id="hmap-1920" class="hmap"></div>
+
+    <div class="featured-wrap" style="margin-top:40px;">
+
+      <!-- Featured player: Bobby De Cordova-Reid -->
+      <div class="featured-card reveal">
+        <div class="featured-badge">⭐ Loan of the Season · 2019/20</div>
+        <div class="featured-name">Bobby<br><span>DCR</span></div>
+        <div class="featured-meta">
+          <span class="featured-pos">AM</span>
+          <span class="featured-nat">Jamaica</span>
+        </div>
+        <div class="featured-club">Fulham</div>
+        <div class="featured-league">EFL Championship</div>
+        <div class="featured-divider"></div>
+        <div class="featured-quote">Look, Bobby wasn't loan of the season because he tore it up for Cardiff — he was loaned to Fulham, played 46 games, helped them into the play-offs, and then Fulham bought him permanently. Cardiff got paid. Sometimes the best loan is the one that turns into a transfer fee, and in a season where the budget was tight, that money mattered.</div>
+        <div class="featured-stats">
+          <div><div class="featured-stat-val">46</div><div class="featured-stat-lbl">Appearances</div></div>
+          <div><div class="featured-stat-val gold">7</div><div class="featured-stat-lbl">Goals</div></div>
+          <div><div class="featured-stat-val">4</div><div class="featured-stat-lbl">Assists</div></div>
+        </div>
+      </div>
+
+      <!-- Season summary -->
+      <div class="season-summary reveal reveal-delay-1">
+        <div class="season-summary-title">2019/20 Season at a Glance</div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>17</span></div>
+            <div class="summary-stat-lbl">Players Loaned</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>4</span></div>
+            <div class="summary-stat-lbl">Countries</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>17</span></div>
+            <div class="summary-stat-lbl">Loan Spells</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>9</span></div>
+            <div class="summary-stat-lbl">Different Leagues</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <div class="summary-tags">
+          <span class="summary-tag gold">🥇 First Cardiff loanee in the Netherlands</span>
+          <span class="summary-tag">Weston-super-Mare take 4 Cardiff academy players</span>
+          <span class="summary-tag">Bobby DCR loaned out, sold, Cardiff get paid</span>
+          <span class="summary-tag">Ciaron Brown at Livingston for the 2nd year running</span>
+        </div>
+  </div><!-- end 2019/20 -->
+
+  <!-- ═══════════ 2018/19 ═══════════ -->
+  <div id="season-1819" class="season-panel">
+
+    <div class="hmap-btns">
+      <button class="hmap-btn on" id="hbtn-1819-eu" onclick="hmv('1819','europe')">&#127757; Europe View</button>
+      <button class="hmap-btn"    id="hbtn-1819-uk" onclick="hmv('1819','uk')">&#127468;&#127463; UK View</button>
+    </div>
+    <p id="hhint-1819" style="font-size:11px;color:rgba(255,255,255,.35);font-style:italic;margin-bottom:10px;">Hover a pin to see the player · Click clusters to expand</p>
+    <div id="hmap-1819" class="hmap"></div>
+
+    <div class="featured-wrap" style="margin-top:40px;">
+
+      <!-- Featured player: Lee Tomlin -->
+      <div class="featured-card reveal">
+        <div class="featured-badge">⭐ Loan of the Season · 2018/19</div>
+        <div class="featured-name">Lee<br><span>Tomlin</span></div>
+        <div class="featured-meta">
+          <span class="featured-pos">SS</span>
+          <span class="featured-nat">England</span>
+        </div>
+        <div class="featured-club">Peterborough United</div>
+        <div class="featured-league">EFL League One</div>
+        <div class="featured-divider"></div>
+        <div class="featured-quote">Went to Peterborough, reminded everyone what he was capable of, came back to Cardiff and that was that. The assist against Leeds the following season is the kind of thing that gets talked about for years. That one came straight out of the confidence he rebuilt at Posh.</div>
+        <div class="featured-stats">
+          <div><div class="featured-stat-val">21</div><div class="featured-stat-lbl">Appearances</div></div>
+          <div><div class="featured-stat-val gold">2</div><div class="featured-stat-lbl">Goals</div></div>
+          <div><div class="featured-stat-val">1</div><div class="featured-stat-lbl">Assists</div></div>
+        </div>
+      </div>
+
+      <!-- Season summary -->
+      <div class="season-summary reveal reveal-delay-1">
+        <div class="season-summary-title">2018/19 Season at a Glance</div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>12</span></div>
+            <div class="summary-stat-lbl">Players Loaned</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>3</span></div>
+            <div class="summary-stat-lbl">Countries</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>13</span></div>
+            <div class="summary-stat-lbl">Loan Spells</div>
+          </div>
+          <div class="summary-stat">
+            <div class="summary-stat-num"><span>8</span></div>
+            <div class="summary-stat-lbl">Different Leagues</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <div class="summary-tags">
+          <span class="summary-tag">Jack &amp; Paul McKay loaned out at the same time</span>
+          <span class="summary-tag">Ciaron Brown's first of 3 straight seasons at Livingston</span>
+        </div>
+  </div><!-- end 2018/19 -->
+
+  <script>
+  /* ── History map data per season ── */
+  var HSEASONS = {
+    '2425': {
+      players: [
+        {n:"Roko Simic",              c:"KV Kortrijk",      l:"Jupiler Pro League",   lat:50.8286, lng:3.2672,  iso:"BEL", pg:""},
+        {n:"Ryan Wintle",             c:"Millwall",         l:"Championship",         lat:51.4853, lng:-0.0507, iso:"ENG", pg:""},
+        {n:"Kion Etete",              c:"Bolton",           l:"League One",           lat:53.5802, lng:-2.5359, iso:"ENG", pg:""},
+        {n:"Ryotaro Tsunoda",         c:"KV Kortrijk",      l:"Jupiler Pro League",   lat:50.8290, lng:3.2680,  iso:"BEL", pg:""},
+        {n:"Eli King",                c:"Stevenage",        l:"League One",           lat:51.8928, lng:-0.2110, iso:"ENG", pg:""},
+        {n:"Kieron Evans",            c:"Newport County",   l:"League Two",           lat:51.5894, lng:-2.9981, iso:"WLS", pg:""},
+        {n:"Malachi Fagan-Walcott",   c:"York City",        l:"National League",      lat:53.9536, lng:-1.0588, iso:"ENG", pg:""},
+        /* ── U21 / Academy ── */
+        {n:"Joel Colwill (Loan 1)",   c:"Cheltenham Town",  l:"League Two",           lat:51.8997, lng:-2.0624, iso:"ENG", pg:""},
+        {n:"Michael Reindorf",        c:"Bristol Rovers",   l:"League One",           lat:51.4944, lng:-2.5680, iso:"ENG", pg:""},
+        {n:"Raheem Conte",            c:"Woking",           l:"National League",      lat:51.3162, lng:-0.5577, iso:"ENG", pg:""},
+        {n:"Luke Pearce",             c:"Sligo Rovers",     l:"Premier Division",     lat:54.2767, lng:-8.4767, iso:"IRL", pg:""},
+        {n:"Jake Dennis",             c:"Oldham Athletic",  l:"National League",      lat:53.5547, lng:-2.1284, iso:"ENG", pg:""},
+        {n:"Joe Thomas",              c:"Yate Town",        l:"Southern League",      lat:51.5388, lng:-2.4127, iso:"ENG", pg:""},
+        {n:"Joel Colwill (Loan 2)",   c:"Exeter City",      l:"League One",           lat:50.7286, lng:-3.5267, iso:"ENG", pg:""},
+        {n:"Baylin Johnson",          c:"Maidstone United", l:"National League South",lat:51.2782, lng:0.5217,  iso:"ENG", pg:""},
+        {n:"Ewan Griffiths",          c:"Plymouth Parkway", l:"Southern League",      lat:50.4023, lng:-4.1791, iso:"ENG", pg:""},
+        {n:"Josh Beecher",            c:"Barry Town",       l:"Cymru Premier",        lat:51.4036, lng:-3.2839, iso:"WLS", pg:""}
+      ],
+      eu: [52.5, 1], euZ: 5,
+      uk: [52.8, -2.2], ukZ: 6
+    },
+    '2324': {
+      players: [
+        /* ── Men's first team ── */
+        {n:"Sheyi Ojo",                 c:"KV Kortrijk",      l:"Jupiler Pro League",      lat:50.8286, lng:3.2672,  iso:"BEL", pg:""},
+        {n:"Andy Rinomhota",            c:"Rotherham",        l:"Championship",            lat:53.4278, lng:-1.3626, iso:"ENG", pg:""},
+        {n:"Isaak Davies",              c:"KV Kortrijk",      l:"Jupiler Pro League",      lat:50.8290, lng:3.2678,  iso:"BEL", pg:""},
+        {n:"Ryotaro Tsunoda",           c:"KV Kortrijk",      l:"Jupiler Pro League",      lat:50.8294, lng:3.2682,  iso:"BEL", pg:""},
+        {n:"Joel Bagan",                c:"Zulte Waregem",    l:"Challenger Pro League",   lat:50.9045, lng:3.4328,  iso:"BEL", pg:""},
+        {n:"Ebou Adams",                c:"Derby County",     l:"League One",              lat:52.9155, lng:-1.4474, iso:"ENG", pg:""},
+        {n:"Eli King (Loan 1)",         c:"Ross County",      l:"Scottish Premiership",    lat:57.5942, lng:-4.1667, iso:"SCT", pg:""},
+        {n:"Ollie Denham (Loan 1)",     c:"Dundee United",    l:"Scottish Championship",   lat:56.4745, lng:-3.0152, iso:"SCT", pg:""},
+        {n:"Ollie Denham (Loan 2)",     c:"Sligo Rovers",     l:"Premier Division",        lat:54.2767, lng:-8.4767, iso:"IRL", pg:""},
+        {n:"Kieron Evans",              c:"Gateshead",        l:"National League",         lat:54.9581, lng:-1.6031, iso:"ENG", pg:""},
+        {n:"Rohan Luthra",              c:"Slough Town",      l:"National League South",   lat:51.5085, lng:-0.5950, iso:"ENG", pg:""},
+        {n:"Eli King (Loan 2)",         c:"Morecambe",        l:"League Two",              lat:54.0717, lng:-2.8694, iso:"ENG", pg:""},
+        /* ── U21 / Academy ── */
+        {n:"Chanka Zimba",              c:"Maidenhead Utd",   l:"National League",         lat:51.5153, lng:-0.7098, iso:"ENG", pg:""},
+        {n:"Tom Davies",                c:"Kilmarnock",       l:"Scottish Premiership",    lat:55.6063, lng:-4.4956, iso:"SCT", pg:""},
+        {n:"Malachi Fagan-Walcott",     c:"Dunfermline Ath",  l:"Scottish Championship",   lat:56.0681, lng:-3.4721, iso:"SCT", pg:""},
+        {n:"Xavier Benjamin",           c:"Dunfermline Ath",  l:"Scottish Championship",   lat:56.0685, lng:-3.4725, iso:"SCT", pg:""},
+        {n:"James Crole",               c:"Queen's Park",     l:"Scottish Championship",   lat:55.8561, lng:-4.2496, iso:"SCT", pg:""},
+        {n:"Jake Dennis",               c:"Gloucester City",  l:"National League North",   lat:51.8590, lng:-2.2440, iso:"ENG", pg:""}
+      ],
+      eu: [53, 0], euZ: 5,
+      uk: [53.5, -2.5], ukZ: 6
+    },
+    '2223': {
+      players: [
+        /* ── Men's first team ── */
+        {n:"Mark McGuinness",   c:"Sheffield Wed",   l:"League One",          lat:53.4114, lng:-1.5013, iso:"ENG", pg:""},
+        {n:"Dillon Phillips",   c:"KV Oostende",     l:"Jupiler Pro League",  lat:51.2333, lng:2.9167,  iso:"BEL", pg:""},
+        {n:"Max Watters",       c:"Barnsley",        l:"League One",          lat:53.5526, lng:-1.4674, iso:"ENG", pg:""},
+        {n:"Kieron Evans",      c:"Torquay United",  l:"National League",     lat:50.4659, lng:-3.5303, iso:"ENG", pg:""},
+        {n:"Ollie Tanner",      c:"York City",       l:"National League",     lat:53.9536, lng:-1.0588, iso:"ENG", pg:""},
+        /* ── U21 / Academy ── */
+        {n:"Matthew Turner",    c:"Aberystwyth Town",l:"Cymru Premier",       lat:52.4153, lng:-4.0829, iso:"WLS", pg:""},
+        {n:"Chanka Zimba",      c:"Newport County",  l:"League Two",          lat:51.5894, lng:-2.9981, iso:"WLS", pg:""},
+        {n:"Tom Davies",        c:"Pontypridd Town", l:"Cymru Premier",       lat:51.6022, lng:-3.3429, iso:"WLS", pg:""},
+        {n:"Jack Leahy",        c:"Haverfordwest",   l:"Cymru Premier",       lat:51.8028, lng:-4.9701, iso:"WLS", pg:""},
+        {n:"Eli King",          c:"Crewe Alexandra", l:"League Two",          lat:53.0888, lng:-2.4253, iso:"ENG", pg:""}
+      ],
+      eu: [52.5, 0], euZ: 5,
+      uk: [52.5, -2.5], ukZ: 6
+    },
+    '2122': {
+      players: [
+        /* ── Men's first team ── */
+        {n:"Josh Murphy",       c:"Preston NE",       l:"Championship",            lat:53.7653, lng:-2.6805, iso:"ENG", pg:""},
+        {n:"Gavin Whyte",       c:"Oxford United",    l:"League One",              lat:51.7572, lng:-1.2177, iso:"ENG", pg:""},
+        {n:"Ciaron Brown",      c:"Oxford United",    l:"League One",              lat:51.7568, lng:-1.2180, iso:"ENG", pg:""},
+        {n:"Tom Sang",          c:"St. Johnstone",    l:"Scottish Premiership",    lat:56.3946, lng:-3.4376, iso:"SCT", pg:""},
+        {n:"Kieron Evans",      c:"Linfield",         l:"Irish Premiership",       lat:54.5800, lng:-5.9537, iso:"NIR", pg:""},
+        {n:"Max Watters",       c:"MK Dons",          l:"League One",              lat:52.0136, lng:-0.7340, iso:"ENG", pg:""},
+        {n:"Ryan Wintle",       c:"Blackpool",        l:"Championship",            lat:53.8042, lng:-3.0480, iso:"ENG", pg:""},
+        /* ── U21 / Academy ── */
+        {n:"Chanka Zimba",      c:"Northampton Town", l:"League Two",              lat:52.2374, lng:-0.8882, iso:"ENG", pg:""},
+        {n:"Keenan Patten",     c:"Hereford FC",      l:"National League North",   lat:52.0489, lng:-2.7160, iso:"ENG", pg:""},
+        {n:"James Connolly",    c:"Bristol Rovers",   l:"League Two",              lat:51.4944, lng:-2.5680, iso:"ENG", pg:""},
+        {n:"Caleb Hughes",      c:"Haverfordwest",    l:"Cymru Premier",           lat:51.8028, lng:-4.9701, iso:"WLS", pg:""}
+      ],
+      eu: [53, -1], euZ: 5,
+      uk: [53, -2], ukZ: 6
+    },
+    '2021': {
+      players: [
+        /* ── Men's first team ── */
+        {n:"Aden Flint",            c:"Sheffield Wed",    l:"Championship",        lat:53.4114, lng:-1.5013, iso:"ENG", pg:""},
+        {n:"Robert Glatzel",        c:"Mainz",            l:"Bundesliga",          lat:49.9842, lng:8.2242,  iso:"DE",  pg:""},
+        {n:"Gavin Whyte",           c:"Hull City",        l:"League One",          lat:53.7461, lng:-0.3676, iso:"ENG", pg:""},
+        {n:"Joe Day",               c:"Bristol Rovers",   l:"League One",          lat:51.4944, lng:-2.5680, iso:"ENG", pg:""},
+        {n:"Tom Sang",              c:"Cheltenham Town",  l:"League Two",          lat:51.8997, lng:-2.0624, iso:"ENG", pg:""},
+        {n:"Ciaron Brown",          c:"Livingston FC",    l:"Scottish Premiership",lat:55.8860, lng:-3.5229, iso:"SCT", pg:""},
+        /* ── U21 / Academy ── */
+        {n:"Aaron Bolger (Loan 1)", c:"Shamrock Rovers",  l:"Premier Division",    lat:53.3237, lng:-6.3122, iso:"IRL", pg:""},
+        {n:"Aaron Bolger (Loan 2)", c:"Longford Town",    l:"Premier Division",    lat:53.7264, lng:-7.7933, iso:"IRL", pg:""},
+        {n:"James Waite (Loan 1)",  c:"Weston-super-M",  l:"Southern League",     lat:51.3462, lng:-2.9771, iso:"ENG", pg:""},
+        {n:"James Waite (Loan 2)",  c:"Waterford FC",     l:"Premier Division",    lat:52.2541, lng:-7.1101, iso:"IRL", pg:""},
+        {n:"Danny Williams",        c:"Haverfordwest",    l:"Cymru Premier",       lat:51.8028, lng:-4.9701, iso:"WLS", pg:""},
+        {n:"Ben Margetson",         c:"Sutton United",    l:"National League",     lat:51.3619, lng:-0.1918, iso:"ENG", pg:""},
+        {n:"Sam Bowen",             c:"Barry Town",       l:"Cymru Premier",       lat:51.4036, lng:-3.2839, iso:"WLS", pg:""}
+      ],
+      eu: [52.5, -1], euZ: 5,
+      uk: [52.5, -2.5], ukZ: 6
+    },
+    '1920': {
+      players: [
+        /* ── Men's first team ── */
+        {n:"Bobby De Cordova-Reid", c:"Fulham",          l:"Championship",         lat:51.4749, lng:-0.2217, iso:"ENG", pg:""},
+        {n:"Greg Cunningham",      c:"Blackburn",        l:"Championship",         lat:53.7285, lng:-2.4887, iso:"ENG", pg:""},
+        {n:"Omar Bogle",           c:"ADO Den Haag",     l:"Eredivisie",           lat:52.0667, lng:4.2833,  iso:"NED", pg:""},
+        {n:"Joe Day",              c:"AFC Wimbledon",    l:"League One",           lat:51.4026, lng:-0.1911, iso:"ENG", pg:""},
+        {n:"Jake Evans",           c:"Hemel Hempstead",  l:"National League South",lat:51.7526, lng:-0.4692, iso:"ENG", pg:""},
+        {n:"Ciaron Brown",         c:"Livingston FC",    l:"Scottish Premiership", lat:55.8860, lng:-3.5229, iso:"SCT", pg:""},
+        /* ── U21 / Academy ── */
+        {n:"Lloyd Humphries",      c:"Weston-super-Mare",l:"Southern League",      lat:51.3528, lng:-2.9842, iso:"ENG", pg:""},
+        {n:"Mark Harris",          c:"Wrexham",          l:"National League",      lat:53.0483, lng:-2.9925, iso:"WLS", pg:""},
+        {n:"James Waite",          c:"Weston-super-Mare",l:"Southern League",      lat:51.3532, lng:-2.9846, iso:"ENG", pg:""},
+        {n:"Danny Williams",       c:"Merthyr Town",     l:"National League North",        lat:51.7435, lng:-3.3763, iso:"WLS", pg:""},
+        {n:"Jack Bodenham",        c:"Hereford FC",      l:"National League North",lat:52.0489, lng:-2.7160, iso:"ENG", pg:""},
+        {n:"Daniel Martin",        c:"Weston-super-Mare",l:"Southern League",      lat:51.3536, lng:-2.9850, iso:"ENG", pg:""},
+        {n:"Sion Spence",          c:"Barry Town",       l:"Cymru Premier",        lat:51.4036, lng:-3.2839, iso:"WLS", pg:""},
+        {n:"Keenan Patten",        c:"Penybont FC",      l:"Cymru Premier",        lat:51.5042, lng:-3.5778, iso:"ENG", pg:""},
+        {n:"Dan Griffiths",        c:"Penybont FC",      l:"Cymru Premier",        lat:51.5048, lng:-3.5784, iso:"ENG", pg:""},
+        {n:"George Ratcliffe",     c:"Barry Town",       l:"Cymru Premier",        lat:51.4030, lng:-3.2833, iso:"WLS", pg:""},
+        {n:"Connor Davies",        c:"Weston-super-Mare",l:"Southern League",      lat:51.3540, lng:-2.9854, iso:"ENG", pg:""}
+      ],
+      eu: [52, -1], euZ: 5,
+      uk: [52.5, -2.5], ukZ: 6
+    },
+    '1819': {
+      players: [
+        /* ── Men's first team ── */
+        {n:"Gary Madine",           c:"Sheffield Utd",    l:"Championship",         lat:53.3703, lng:-1.4706, iso:"ENG", pg:""},
+        {n:"Lee Tomlin",            c:"Peterborough Utd", l:"League One",           lat:52.5681, lng:-0.2402, iso:"ENG", pg:""},
+        {n:"Stuart O'Keefe",        c:"Plymouth Argyle",  l:"League One",           lat:50.3881, lng:-4.1536, iso:"ENG", pg:""},
+        {n:"Omar Bogle (Loan 1)",   c:"Birmingham City",  l:"Championship",         lat:52.4751, lng:-1.7868, iso:"ENG", pg:""},
+        {n:"Omar Bogle (Loan 2)",   c:"Portsmouth",       l:"League One",           lat:50.7965, lng:-1.0641, iso:"ENG", pg:""},
+        {n:"Rhys Healey",           c:"MK Dons",          l:"League Two",           lat:52.0136, lng:-0.7340, iso:"ENG", pg:""},
+        {n:"Jack McKay",            c:"Chesterfield",     l:"National League",      lat:53.2347, lng:-1.4150, iso:"ENG", pg:""},
+        {n:"Paul McKay",            c:"Morecambe FC",     l:"League Two",           lat:54.0717, lng:-2.8694, iso:"ENG", pg:""},
+        {n:"Ciaron Brown",          c:"Livingston FC",    l:"Scottish Premiership", lat:55.8860, lng:-3.5229, iso:"SCT", pg:""},
+        /* ── U21 / Academy ── */
+        {n:"Mark Harris (Loan 1)",  c:"Port Vale",        l:"League Two",           lat:53.0513, lng:-2.1872, iso:"ENG", pg:""},
+        {n:"James Waite",           c:"Hereford FC",      l:"National League North",lat:52.0489, lng:-2.7160, iso:"ENG", pg:""},
+        {n:"Mark Harris (Loan 2)",  c:"Newport County",   l:"League Two",           lat:51.5894, lng:-2.9981, iso:"WLS", pg:""},
+        {n:"Jack Bodenham",         c:"The New Saints",   l:"Cymru Premier",        lat:52.6543, lng:-3.1545, iso:"WLS", pg:""}
+      ],
+      eu: [52.5, -1.5], euZ: 5,
+      uk: [52.5, -2], ukZ: 6
+    }
+  };
+
+  var hmaps   = {};  // Leaflet map instances keyed by season
+  var hlayers = {};  // { season: { main: layerGroup, explode: layerGroup } }
+  var hfilter = {};  // current filter per season
+  var hview   = {};  // 'europe' | 'uk' per season
+
+  function hGroupByClub(list) {
+    var clubs = {};
+    list.forEach(function(p) {
+      if (!clubs[p.c]) clubs[p.c] = {lat:p.lat, lng:p.lng, players:[]};
+      clubs[p.c].players.push(p);
+    });
+    return clubs;
+  }
+
+  function hMakePIN() {
+    return L.divIcon({
+      className:'',
+      html:'<div style="width:16px;height:16px;background:#0057B8;border:2.5px solid #fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,.5),0 0 0 3px rgba(0,87,184,.3);cursor:pointer;"></div>',
+      iconSize:[16,16], iconAnchor:[8,8], popupAnchor:[0,-12]
+    });
+  }
+
+  function hMakeCluster(count) {
+    return L.divIcon({
+      className:'',
+      html:'<div style="width:28px;height:28px;background:#0057B8;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,.55),0 0 0 4px rgba(0,87,184,.35);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:Barlow Condensed,sans-serif;font-weight:900;font-size:13px;color:#fff;">' + count + '</div>',
+      iconSize:[28,28], iconAnchor:[14,14], popupAnchor:[0,-16]
+    });
+  }
+
+  function hPopup(p) {
+    return '<div class="pn">'+ p.n +'</div>'+
+           '<div class="pc">'+ p.c +'</div>'+
+           '<div class="pl">'+ p.l +'</div>';
+  }
+
+  function hExplode(season, clat, clng, players) {
+    var m  = hmaps[season];
+    var ml = hlayers[season];
+    ml.explode.clearLayers();
+    ml.main.clearLayers();
+    var n   = players.length;
+    var cpt = m.latLngToContainerPoint([clat, clng]);
+    players.forEach(function(p, i) {
+      var angle = (2*Math.PI/n)*i - Math.PI/2;
+      var px = cpt.x + 60*Math.cos(angle);
+      var py = cpt.y + 60*Math.sin(angle);
+      var ll = m.containerPointToLatLng([px, py]);
+      L.polyline([[clat,clng],[ll.lat,ll.lng]],{color:'#0057B8',weight:1.5,opacity:.6,dashArray:'5,5'}).addTo(ml.explode);
+      L.marker([ll.lat,ll.lng],{icon:hMakePIN()})
+        .bindTooltip(p.n,{direction:'top',className:'mtt',offset:[0,-6]})
+        .bindPopup(hPopup(p),{maxWidth:220}).addTo(ml.explode);
+    });
+    L.circleMarker([clat,clng],{radius:5,color:'#fff',fillColor:'#0057B8',fillOpacity:1,weight:2})
+      .bindTooltip('Click map to collapse',{direction:'top',className:'mtt'}).addTo(ml.explode);
+    var hint = document.getElementById('hhint-'+season);
+    if (hint) hint.textContent = 'Click the map to collapse · Click a pin for details';
+  }
+
+  function hCollapse(season, filterFn) {
+    hlayers[season].explode.clearLayers();
+    hDrawPins(season, filterFn);
+    var hint = document.getElementById('hhint-'+season);
+    if (hint) hint.textContent = 'Hover a pin to see the player · Click clusters to expand';
+  }
+
+  function hDrawPins(season, filterFn) {
+    hfilter[season] = filterFn || null;
+    var ml   = hlayers[season];
+    var data = HSEASONS[season];
+    ml.main.clearLayers();
+    ml.explode.clearLayers();
+    var list  = filterFn ? data.players.filter(filterFn) : data.players;
+    var clubs = hGroupByClub(list);
+    Object.keys(clubs).forEach(function(ck) {
+      var club = clubs[ck];
+      var pls  = club.players;
+      if (pls.length === 1) {
+        L.marker([club.lat,club.lng],{icon:hMakePIN()})
+          .bindTooltip(pls[0].n,{direction:'top',className:'mtt',offset:[0,-6]})
+          .bindPopup(hPopup(pls[0]),{maxWidth:220}).addTo(ml.main);
+      } else {
+        L.marker([club.lat,club.lng],{icon:hMakeCluster(pls.length)})
+          .bindTooltip(pls.length+' players at '+ck,{direction:'top',className:'mtt',offset:[0,-10]})
+          .on('click',(function(s,k,la,ln,ps){
+            return function(){ hExplode(s,la,ln,ps); };
+          })(season,ck,club.lat,club.lng,pls))
+          .addTo(ml.main);
+      }
+    });
+  }
+
+  window.hmv = function(season, v) {
+    hview[season] = v;
+    var data = HSEASONS[season];
+    var m    = hmaps[season];
+    if (!m) return;
+    document.getElementById('hbtn-'+season+'-eu').classList.toggle('on', v==='europe');
+    document.getElementById('hbtn-'+season+'-uk').classList.toggle('on', v==='uk');
+    if (v === 'europe') {
+      m.flyTo(data.eu, data.euZ, {duration:1});
+      hDrawPins(season);
+    } else {
+      m.flyTo(data.uk, data.ukZ, {duration:1});
+      hDrawPins(season, function(p){ return p.iso==='ENG'||p.iso==='WLS'||p.iso==='SCT'; });
+    }
+  };
+
+  window.showSeason = function(season) {
+    document.querySelectorAll('.season-panel').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.history-tab').forEach(function(el){ el.classList.remove('active'); });
+    var panel = document.getElementById('season-'+season);
+    if (panel) panel.classList.add('active');
+    document.querySelectorAll('.history-tab').forEach(function(btn){
+      if (btn.textContent.replace('/','').replace(' ','') === season || btn.getAttribute('onclick').includes(season)) btn.classList.add('active');
+    });
+    // Init map for this season if not yet done
+    initHMap(season);
+    // Force map to redraw tiles (Leaflet needs this when container was hidden)
+    if (hmaps[season]) setTimeout(function(){ hmaps[season].invalidateSize(); }, 50);
+  };
+
+  function initHMap(season) {
+    if (hmaps[season]) return; // already init
+    var el = document.getElementById('hmap-'+season);
+    if (!el || typeof L === 'undefined') return;
+    var data = HSEASONS[season];
+    var m = L.map('hmap-'+season, {
+      scrollWheelZoom:false, zoomControl:true,
+      attributionControl:false, minZoom:3, maxZoom:14
+    });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{subdomains:'abc',maxZoom:19}).addTo(m);
+    hmaps[season]   = m;
+    hlayers[season] = {
+      main:    L.layerGroup().addTo(m),
+      explode: L.layerGroup().addTo(m)
+    };
+    m.on('click', function(){
+      if (hlayers[season].explode.getLayers().length > 0) hCollapse(season, hfilter[season]);
+    });
+    m.setView(data.eu, data.euZ);
+    hDrawPins(season);
+  }
+
+  // Init the first season's map immediately (panel is visible)
+  function initHistorySection() {
+    if (typeof L === 'undefined') return;
+    initHMap('2425');
+  }
+  initHistorySection();
+  document.addEventListener('DOMContentLoaded', initHistorySection);
+  </script>
+
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-image reveal">
+    <img src="about.jpg" alt="Cardiff City" />
+    <div class="about-image-badge">
+      <div class="about-image-badge-num">2025/26</div>
+      <div class="about-image-badge-label">Current Season</div>
+    </div>
+  </div>
+
+  <div class="about-content reveal reveal-delay-1">
+    <div class="section-label">About This Site</div>
+    <h2 class="section-title">Cardiff City<br><span class="accent">Loan Watch</span></h2>
+    <p class="section-sub">An independent fan-run tracker dedicated to keeping Cardiff City supporters up to date with every player out on loan across the football pyramid.</p>
+
+    <div class="about-points">
+      <div class="about-point">
+        <div class="about-point-icon">📊</div>
+        <div class="about-point-text">
+          <div class="about-point-title">Live Stats</div>
+          <div class="about-point-desc">Appearances, goals, assists and minutes tracked throughout the season across all competitions.</div>
+        </div>
+      </div>
+      <div class="about-point">
+        <div class="about-point-icon">📰</div>
+        <div class="about-point-text">
+          <div class="about-point-title">Match Updates</div>
+          <div class="about-point-desc">Regular match-by-match updates so you never miss a moment from our loanees' campaigns.</div>
+        </div>
+      </div>
+      <div class="about-point">
+        <div class="about-point-icon">🔵</div>
+        <div class="about-point-text">
+          <div class="about-point-title">Fan Built</div>
+          <div class="about-point-desc">Made by Cardiff fans, for Cardiff fans. Independent, unaffiliated and completely free.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">CCFC <span>Loan Watch</span></div>
+  <p class="footer-note">Independent fan site · Not affiliated with Cardiff City FC · 2025/26</p>
+  <ul class="footer-links">
+    <li><a href="#players">Players</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+</footer>
+
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => observer.observe(r));
+</script>
+
+
+
+<script>
+  const reviews = {
+    mar26: { title: 'March <span>2026</span>', groups: [
+      { label: 'Strikers & Attacking Midfielders', players: [
+        { name: 'Roko Simic',       club: 'Karlsruher SC · 2. Bundesliga',       stats: [{v:4,l:'Apps'},{v:1,l:'Goals',gold:true},{v:0,l:'Assists'}] },
+        { name: 'Michael Reindorf', club: 'Tamworth · National League',           stats: [{v:3,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}] },
+        { name: 'Kion Etete',       club: 'Rotherham United · League One',        stats: [{v:0,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}], note:'Loan terminated Jan 2026' },
+        { name: 'Luke Pearce',      club: 'IFK Mariehamn · Veikkausliiga',        stats: [{v:0,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}], note:'Season not started' },
+        { name: 'Troy Perret',      club: 'Yeovil Town · National League',        stats: [{v:3,l:'Apps'},{v:0,l:'Goals'},{v:1,l:'Assists',gold:true}] },
+      ]},
+      { label: 'Midfielders & Wide Players', players: [
+        { name: 'Tanatswa Nyakuhwa', club: 'Newport County · League Two',         stats: [{v:4,l:'Apps'},{v:0,l:'Goals'},{v:1,l:'Assists',gold:true}] },
+        { name: 'Dakarai Mafico',    club: 'Yeovil Town · National League',       stats: [{v:4,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}] },
+      ]},
+      { label: 'Defenders', players: [
+        { name: 'Will Spiers',   club: 'Merthyr Town · National League North',    stats: [{v:5,l:'Apps'},{v:0,l:'Goals'},{v:2,l:'Assists',gold:true}] },
+        { name: 'Jesper Daland', club: 'Fortuna Düsseldorf · 2. Bundesliga',      stats: [{v:5,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Clean Sheets'}] },
+        { name: 'Luey Giles',    club: 'Eastleigh · National League',             stats: [{v:1,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Clean Sheets'}] },
+      ]},
+      { label: 'Goalkeepers', players: [
+        { name: 'Jake Dennis',    club: 'Merthyr Town · National League North',   stats: [{v:2,l:'Apps'},{v:4,l:'Conceded'},{v:0,l:'Clean Sheets'}] },
+        { name: 'Luke Armstrong', club: 'Penybont · Cymru Premier',               stats: [{v:4,l:'Apps'},{v:7,l:'Conceded'},{v:1,l:'Clean Sheets',gold:true}] },
+        { name: 'Ewan Griffiths', club: 'Cardiff Met · Cymru Premier',            stats: [{v:1,l:'Apps'},{v:1,l:'Conceded'},{v:0,l:'Clean Sheets'}] },
+      ]},
+    ]},
+    feb26: { title: 'February <span>2026</span>', groups: [
+      { label: 'Strikers & Attacking Midfielders', players: [
+        { name: 'Roko Simic',       club: 'Karlsruher SC · 2. Bundesliga',       stats: [{v:5,l:'Apps'},{v:2,l:'Goals',gold:true},{v:0,l:'Assists'}] },
+        { name: 'Michael Reindorf', club: 'Newport County · League Two',          stats: [{v:4,l:'Apps'},{v:1,l:'Goals',gold:true},{v:0,l:'Assists'}] },
+        { name: 'Kion Etete',       club: 'Rotherham United · League One',        stats: [{v:0,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}], note:'Recalled Jan 15' },
+        { name: 'Luke Pearce',      club: 'IFK Mariehamn · Veikkausliiga',        stats: [{v:0,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}], note:'Pre-season' },
+        { name: 'Troy Perret',      club: 'Yeovil Town · National League',        stats: [{v:3,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}] },
+      ]},
+      { label: 'Midfielders & Wide Players', players: [
+        { name: 'Tanatswa Nyakuhwa', club: 'Newport County · League Two',         stats: [{v:3,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}] },
+        { name: 'Dakarai Mafico',    club: 'Yeovil Town · National League',       stats: [{v:3,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}] },
+      ]},
+      { label: 'Defenders', players: [
+        { name: 'Will Spiers',   club: 'Merthyr Town · National League North',    stats: [{v:4,l:'Apps'},{v:0,l:'Goals'},{v:2,l:'Assists',gold:true}] },
+        { name: 'Jesper Daland', club: 'Fortuna Düsseldorf · 2. Bundesliga',      stats: [{v:4,l:'Apps'},{v:0,l:'Goals'},{v:1,l:'Clean Sheets',gold:true}] },
+        { name: 'Luey Giles',    club: 'Eastleigh · National League',             stats: [{v:2,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Clean Sheets'}] },
+      ]},
+      { label: 'Goalkeepers', players: [
+        { name: 'Jake Dennis',    club: 'Merthyr Town · National League North',   stats: [{v:1,l:'Apps'},{v:2,l:'Conceded'},{v:0,l:'Clean Sheets'}] },
+        { name: 'Luke Armstrong', club: 'Penybont · Cymru Premier',               stats: [{v:4,l:'Apps'},{v:8,l:'Conceded'},{v:2,l:'Clean Sheets',gold:true}] },
+        { name: 'Ewan Griffiths', club: 'Cardiff Met · Cymru Premier',            stats: [{v:1,l:'Apps'},{v:1,l:'Conceded'},{v:0,l:'Clean Sheets'}] },
+      ]},
+    ]},
+    jan26: { title: 'January <span>2026</span>', groups: [
+      { label: 'Strikers & Attacking Midfielders', players: [
+        { name: 'Roko Simic',  club: 'Karlsruher SC · 2. Bundesliga',            stats: [{v:4,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}] },
+        { name: 'Kion Etete',  club: 'Rotherham United · League One',             stats: [{v:2,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}], note:'Recalled Jan 15' },
+        { name: 'Luke Pearce', club: 'IFK Mariehamn · Veikkausliiga',             stats: [{v:0,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}], note:'Season not started' },
+        { name: 'Troy Perret', club: 'Yeovil Town · National League',             stats: [{v:2,l:'Apps'},{v:0,l:'Goals'},{v:1,l:'Assists',gold:true}] },
+      ]},
+      { label: 'Midfielders & Wide Players', players: [
+        { name: 'Dakarai Mafico', club: 'Yeovil Town · National League',          stats: [{v:3,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}] },
+      ]},
+      { label: 'Defenders', players: [
+        { name: 'Will Spiers',   club: 'Merthyr Town · National League North',    stats: [{v:3,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Assists'}] },
+        { name: 'Jesper Daland', club: 'Fortuna Düsseldorf · 2. Bundesliga',      stats: [{v:5,l:'Apps'},{v:0,l:'Goals'},{v:2,l:'Clean Sheets',gold:true}] },
+        { name: 'Luey Giles',    club: 'Eastleigh · National League',             stats: [{v:0,l:'Apps'},{v:0,l:'Goals'},{v:0,l:'Clean Sheets'}] },
+      ]},
+      { label: 'Goalkeepers', players: [
+        { name: 'Jake Dennis',    club: 'Merthyr Town · National League North',   stats: [{v:1,l:'Apps'},{v:2,l:'Conceded'},{v:0,l:'Clean Sheets'}] },
+        { name: 'Luke Armstrong', club: 'Penybont · Cymru Premier',               stats: [{v:4,l:'Apps'},{v:9,l:'Conceded'},{v:2,l:'Clean Sheets',gold:true}] },
+        { name: 'Ewan Griffiths', club: 'Cardiff Met · Cymru Premier',            stats: [{v:1,l:'Apps'},{v:1,l:'Conceded'},{v:0,l:'Clean Sheets'}] },
+      ]},
+    ]},
+  };
+
+  function openReview(id) {
+    const r = reviews[id]; if (!r) return;
+    document.getElementById('modalTitle').innerHTML = r.title;
+    let body = '';
+    r.groups.forEach(g => {
+      body += `<div class="modal-section-label">${g.label}</div>`;
+      g.players.forEach(p => {
+        const stats = p.stats.map(s => `<div class="mpr-stat"><div class="mpr-stat-val${s.gold?' gold':''}">${s.v}</div><div class="mpr-stat-lbl">${s.l}</div></div>`).join('');
+        const note = p.note ? `<span style="font-size:10px;color:var(--muted);margin-left:8px;font-style:italic">${p.note}</span>` : '';
+        body += `<div class="modal-player-row"><div><div class="mpr-name">${p.name}${note}</div><div class="mpr-club">${p.club}</div></div><div class="mpr-stats">${stats}</div></div>`;
+      });
+    });
+    document.getElementById('modalBody').innerHTML = body;
+    document.getElementById('reviewModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeReview() { document.getElementById('reviewModal').classList.remove('open'); document.body.style.overflow = ''; }
+  function closeOnOverlay(e) { if (e.target === document.getElementById('reviewModal')) closeReview(); }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeReview(); });
+</script>
+
+</body>
+</html>
